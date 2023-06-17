@@ -4,10 +4,11 @@ import csv
 import fnmatch
 import os
 import csv
-from FunctionalNetwork import FunctionalNetwork
+from FunctionalNetwork_II import FunctionalNetwork
 from network import network
 from optimizerMV import optimizerMV
 import time
+from Modifications import Modifications
 
 # structure generation
 CV1 = network.generate_filters(16, 5)
@@ -119,7 +120,7 @@ def data(ptn, val = 0):
 
 losses = [64, 64]
 nn = 0
-
+neuralNetworks = [networkN]
 # scan 1
 scan_start = time.time()
 num_files = len(fnmatch.filter(os.listdir("NGCT1_IMG"), '*.png'))
@@ -129,12 +130,13 @@ for i in range(val):
 	start = time.time()
 	print(i)
 	print("f")
-	(networkN, error) = FunctionalNetwork.DRCNN(Is1[i], As1[i], networkN, losses[-1])
+	(networkN, error) = FunctionalNetwork.DRCNN(Is1[i], As1[i], networkN, losses[-1], neuralNetworks)
 	losses.append(error)
 	print(error)
 	
 	if error < losses[-2]:
-		nn = networkN
+		nn = neuralNetworks[-1]
+	neuralNetworks.append(networkN)
 	end = time.time()
 	print(end - start)
 	
@@ -154,12 +156,13 @@ for i in range(val):
 	start = time.time()
 	print(i)
 	print("f")
-	(networkN, error) = FunctionalNetwork.DRCNN(Is2[i], As2[i], networkN, losses[-1])
+	(networkN, error) = FunctionalNetwork.DRCNN(Is2[i], As2[i], networkN, losses[-1], neuralNetworks)
 	losses.append(error)
 	print(error)
 	
 	if error < losses[-2]:
-		nn = networkN
+		nn = neuralNetworks[-1]
+	neuralNetworks.append(networkN)
 	end = time.time()
 	print(end - start)
 	

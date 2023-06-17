@@ -1,11 +1,12 @@
 import cv2
 import numpy as np
+import random
 from algorithm import algorithm
 from techniques import techniques
 from SNN import SNN
 from network import network
 
-class modifications:
+class Modifications:
 	def __init__(self):
 		pass
 	
@@ -28,6 +29,8 @@ class modifications:
 				place = i - stretch
 				new = np.multiply(deltas[place], factor)
 				delta_new = np.add(delta_new, new)
+		factor = (1 - psi)
+		delta_new = np.multiply(delta_new, factor)
 		return delta_new
 	
 	def afm(sMaps):
@@ -65,12 +68,131 @@ class modifications:
 		beta = alpha * factor
 		return beta
 		
-	def correction_gradient(error1, error2, alpha):
-		diff = error1 - error2
-		percent = diff / error2
-		sign = -1 if percent < 0 else 1
-		gamma = np.sqrt(percent) * sign
-		nu = modifications.gradient(error2, alpha) * gamma
-		return nu
+	def sARR(img1, img2): # similarity coefficients
+		if isinstance(img1, list):
+			img1 = np.array(img1)
+		if isinstance(img2, list):
+			img2 = np.array(img2)
+		(h, w) = img1.shape[:2]
+		scTOT = 0
+		avg = (sum(img1, img2) / 2.0) + 0.5
+		avgLN = np.log(avg)
+				
+		characteristic1 = avgLN / np.log(255)
+			
+		diff = abs(img1 - img2)
+		characteristic2 = np.sqrt(diff / 256)
+			
+		val1 = characteristic1 - characteristic2
+		val2 = val1.tolist()
+		sc = []
+		for i in range(h):
+			for j in range(w):
+				val3 = techniques.elu(val2[i][j])
+				sc.append(val3)
+				
+		return sc
 	
+	def image_masks(img1, img2, img3, img4, img5):
+		if isinstance(img1, list):
+			img1 = np.array(img1)
+		sc2 = Modifications.sARR(img1, img2)
+		sc3 = Modifications.sARR(img1, img3)
+		sc4 = Modifications.sARR(img1, img4)
+		sc5 = Modifications.sARR(img1, img5)
+		sc1 = []
+		for i in range(len(sc2)):
+			val = sc2[i] + sc3[i] + sc4[i] + sc5[i]
+			sc1.append(val)
+		
+		new_img = []
+		(h, w) = img1.shape[:2]
+		for i in range(h):
+			new_row = []
+			for j in range(w):
+				place = (i * w) + j
+				vals = img1[i,j] * sc1[place]
+				new_row.append(vals)
+			new_img.append(new_row)
+		new_img = np.array(new_img)
+		return new_img
 	
+	def frame_differences(img1, img2, img3, img4, img5):
+		if isinstance(img1, list):
+			img1 = np.array(img1)
+		if isinstance(img2, list):
+			img2 = np.array(img2)
+		if isinstance(img3, list):
+			img3 = np.array(img3)
+		if isinstance(img4, list):
+			img4 = np.array(img4)
+		if isinstance(img5, list):
+			img5 = np.array(img5)
+			
+		change = np.multiply(np.add(img2, img3, img4, img5), 0.25)
+		new = np.square(np.subtract(img1, change))
+		return new
+	
+	def dropout(filter_inputs, layers, threshold):
+		new_layers = []
+		indices = []
+		for k in range(len(layers) - 1): # iterates through all attached layers
+			index_section = []
+			for j in range(5): # iterates through five sections
+				index = []
+				for i in range(len(layers[k][j])): # iterates through all the nodes
+					if random.random() > threshold:
+						index.append(i) # adds indices
+				index_section.append(index)
+			indices.append(index_section)
+		result = []
+		for i in range(5):
+			res = [0, 1, 2, 3]
+			result.append(res)
+		indices.append(result)
+		
+		neuralDropout = []
+		for k in range(len(layers) - 1):
+			neuralSection = []
+			for j in range(5):
+				neuralValues = []
+				for node in indices[k][j]:
+					element = []
+					weights = []
+					for weight in indices[k + 1][j]:
+						weights.append(layers[k][j][node][0][weight])
+					element.append(weights)
+					element.append(layers[k][j][node][1])
+					neuralValues.append(element)
+				neuralSection.append(neuralValues)
+			neuralDropout.append(neuralSection)
+		
+		neuralDropout.append(layers[-1])
+		return neuralDropout
+	
+	def determinants(convolutional_layers):
+		for i in range(len(convolutional_layers):
+			for j in range(5):
+				for k in range(len(convolutional_layers[i][j])):
+					det = 1
+					try:
+						det = np.linalg.det(convolutional_layers[i][j][k])
+					except:
+						pass
+					normalized = np.sqrt(abs(det)
+					convolutional_layers[i][j][k] = np.divide(convolutional_layers[i][j][k], normalized)
+		return convolutional_layers
+	
+	def learning_rate(convolutional_layers):
+		updated_layers = convolutional_layers.copy()
+		for i in range(len(convolutional_layers)):
+			for j in range(5):
+				for k in range(len(convolutional_layers[i][j])):
+					det = 1
+					try:
+						det = np.linalg.det(convolutional_layers[i][j][k])
+					except:
+						pass
+					rate = np.log(abs(det))
+					updated_layers[i][j][k] = rate
+		return updated_layers			

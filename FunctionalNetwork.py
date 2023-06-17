@@ -13,6 +13,7 @@ class FunctionalNetwork:
 		pass
 
 	def DRCNN(images, actuals, networkN, prev):
+		# adjust gradients to prevent against increasing loss
 
 		filters = networkN[0]
 		nodes = networkN[1]
@@ -94,8 +95,8 @@ class FunctionalNetwork:
 		rho = network.direction(prev, error)
 		filter_loss = []
 		for i in range(5):
-			(FC6[i], P6) = network.backprop(FC6[i], loss[i], 1, alpha, coords[i])
-			(FC5[i], P5) = network.backprop(FC5[i], P6, 0, alpha, fcInputs[i])
+			(FC6[i], P6) = network.backprop(FC6[i], loss[i], 1, alpha * rho, coords[i])
+			(FC5[i], P5) = network.backprop(FC5[i], P6, 0, alpha * rho, fcInputs[i])
 			filter_loss.append(P5)
 		print("fb")		
 		filter_matrices = []

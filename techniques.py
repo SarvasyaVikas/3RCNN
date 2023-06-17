@@ -32,8 +32,7 @@ class techniques:
 		for i in range(h):
 			for j in range(w):
 				val3 = techniques.elu(val2[i][j])
-				
-		scTOT += val3
+				scTOT += val3
 		
 		sc = float(scTOT / h / w)
 		return sc
