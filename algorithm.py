@@ -26,6 +26,8 @@ class algorithm:
 		return arr
 		
 	def convolution(F, image, pad): # applying convolutional kernel
+		if isinstance(image, list):
+			image = np.array(image)
 		(h, w) = image.shape[:2]
 		image = np.array(algorithm.same_padding(image, pad))
 		fMap = []
@@ -33,17 +35,58 @@ class algorithm:
 		for i in range(len(F)): # turns the filter into a vector
 			for j in range(len(F[i])):
 				vector.append(F[i][j]) 
-		for i in range(pad, h + pad):
+		for i in range(h):
 			fRow = []
-			for j in range(pad, w + pad):
+			for j in range(w):
 				area = [] # this is the vector for the kernel area
-				for k in range(i - pad, i + pad + 1):
-					for l in range(j - pad, j + pad + 1):
-						area.append(image[k,l])
+				for k in range(len(F)):
+					for l in range(len(F[0])):
+						y = i + k
+						x = j + l
+						area.append(image[y,x])
 						
 				tot = 0
 				for m in range(len(vector)): # calculates convolution value
-					val = vector[m] * area[m]
+					val = algorithm.signed_log(vector[m]) * algorithm.signed_log(area[m])
+					tot += val
+				
+				fRow.append(tot) 
+			
+			fMap.append(fRow) # creates array feature map
+
+		return fMap
+	
+	def signed_log(x):
+		sign = -1 if x < 0 else 1
+		if x == 0:
+			x = 1
+		log = np.log(abs(x))
+		res = sign * log
+		return res
+	
+	def anticonvolution(F, image, pad): # applying convolutional kernel
+		if isinstance(image, list):
+			image = np.array(image)
+		(h, w) = image.shape[:2]
+		image = np.array(algorithm.same_padding(image, pad))
+		fMap = []
+		vector = []
+		for i in range(len(F)): # turns the filter into a vector
+			for j in range(len(F[i])):
+				vector.append(F[i][j]) 
+		for i in range((2 * pad) + 1):
+			fRow = []
+			for j in range((2 * pad) + 1):
+				area = []
+				for k in range(h):
+					for l in range(w):
+						y = i + k
+						x = j + l
+						area.append(image[y,x])
+				
+				tot = 0
+				for m in range(len(vector)): # calculates convolution value
+					val = algorithm.signed_log(vector[m]) * algorithm.signed_log(area[m])
 					tot += val
 				
 				fRow.append(tot) 
@@ -53,12 +96,18 @@ class algorithm:
 		return fMap
 	
 	def max_pooling(fMap): # max pooling (by 2)
+		if isinstance(fMap, list):
+			fMap = np.array(fMap)
 		pooledMap = []
 		(h, w) = fMap.shape[:2]
 		for i in range(0, h - 1, 2):
 			pooledRow = []
 			for j in range(0, w - 1, 2):
-				val = max(fMap[(i),(j)][0], fMap[(i + 1),(j)][0], fMap[(i),(j + 1)][0], fMap[(i + 1),(j + 1)][0])
+				val1 = fMap[i,j]
+				val2 = fMap[(i + 1),(j)]
+				val3 = fMap[(i),(j + 1)]
+				val4 = fMap[(i + 1),(j + 1)]
+				val = max(val1, val2, val3, val4)
 				pooledRow.append(val)
 			
 			pooledMap.append(pooledRow)

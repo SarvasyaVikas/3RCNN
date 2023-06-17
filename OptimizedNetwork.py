@@ -131,11 +131,11 @@ for i in range(5):
 
 for l in range(len(network_filters)):
 	for m in range(len(network_filters[l][0])):
-		a = network_filters[l][0][m]
-		b = network_filters[l][1][m]
-		c = network_filters[l][2][m]
-		d = network_filters[l][3][m]
-		e = network_filters[l][4][m]
+		a = np.array(network_filters[l][0][m])
+		b = np.array(network_filters[l][1][m])
+		c = np.array(network_filters[l][2][m])
+		d = np.array(network_filters[l][3][m])
+		e = np.array(network_filters[l][4][m])
 		
 		matrices = techniques(a, b, c, d, e).plane_recurrence()
 		

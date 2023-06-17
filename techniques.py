@@ -10,32 +10,33 @@ class techniques:
 		self.D = D
 		self.E = E
 	
-	def elu(self, x):
+	def elu(x):
 		if x <= 0:
 			return ((math.e ** x) - 1)
 		else:
 			return x
 	
-	def s(self, img1, img2): # similarity coefficients
+	def s(img1, img2): # similarity coefficients
 		(h, w) = img1.shape[:2]
 		scTOT = 0
+		avg = (sum(img1, img2) / 2.0) + 0.5
+		avgLN = np.log(avg)
+				
+		characteristic1 = avgLN / np.log(255)
+			
+		diff = abs(img1 - img2)
+		characteristic2 = np.sqrt(diff / 256)
+			
+		val1 = characteristic1 - characteristic2
+		val2 = val1.tolist()
 		for i in range(h):
 			for j in range(w):
-				avg = sum(img1[i][j], img2[i][j]) / 2.0
-				avgLN = np.log(avg)
+				val3 = techniques.elu(val2[i][j])
 				
-				characteristic1 = avgLN / np.log(255)
-				
-				diff = abs(img1[i][j] - img2[i][j])
-				characteristic2 = math.sqrt(diff / 256)
-				
-				val1 = characteristic1 - characteristic2
-				
-				val2 = elu(val1)
-				
-				scTOT += val2
+		scTOT += val3
 		
 		sc = float(scTOT / h / w)
+		return sc
 	
 	def correction(self, image, section): # applies image correction
 		# assumes that correctionDNN has already been applied and does selective dimming
@@ -104,14 +105,37 @@ class techniques:
 		return image
 	
 	def plane_recurrence(self): # applies plane recurrence between the filters of a specific node layer
-		detA = np.linalg.det(self.A)
-		detB = np.linalg.det(self.B)
-		detC = np.linalg.det(self.C)
-		detD = np.linalg.det(self.D)
-		detE = np.linalg.det(self.E)
+		detA = 1
+		detB = 1
+		detC = 1
+		detD = 1
+		detE = 1
+		try:
+			detA = np.linalg.det(self.A)
+		except:
+			pass
+		try:
+			detB = np.linalg.det(self.B)
+		except:
+			pass
+		try:
+			detC = np.linalg.det(self.C)
+		except:
+			pass
+		try:
+			detD = np.linalg.det(self.D)
+		except:
+			pass
+		try:
+			detE = np.linalg.det(self.E)
+		except:
+			pass
+		
 		matrices = [self.A, self.B, self.C, self.D, self.E]
 		dets = [detA, detB, detC, detD, detE]
-		
+		for i in range(5):
+			if dets[i] == 0:
+				dets[i] = 1
 		factors = []
 		for l in range(5):
 			factor = 0

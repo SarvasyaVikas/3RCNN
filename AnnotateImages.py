@@ -13,7 +13,7 @@ args = vars(ap.parse_args())
 
 ptn = int(args["ptn"])
 CT = args["type"].upper()
-num_files = len(fnmatch.filter(os.listdir("{}CT{}_IMG".format(CT, str(ptn))), '*.png'))
+num_files = len(fnmatch.filter(os.listdir("{}CT{}_IMG".format(CT, str(ptn))), '*.png')) // 3
 
 LTX_vals = [["RCA"], ["LAD"], ["CX"], ["LM"]]
 LTY_vals = [["RCA"], ["LAD"], ["CX"], ["LM"]]
@@ -72,7 +72,7 @@ cv2.setMouseCallback("Image", Interact)
 for files in range(num_files):
 	file_num = files + 1
 	orig = cv2.imread("{}CT{}_IMG/{}ct{}_{}.png".format(CT, ptn, CT.lower(), ptn, file_num), 1)
-	crop = cv2.resize(orig,(0, 0),fx=2, fy=2, interpolation = cv2.INTER_LINEAR)
+	crop = cv2.resize(orig,(0, 0),fx=3, fy=3, interpolation = cv2.INTER_LINEAR)
 	(h, w) = crop.shape[:2]
 	resized = crop[(h // 4) : (3 * h // 4), (w // 4) : (3 * w // 4)]
 	arteries = ["RCA", "LAD", "CX", "LM"]
@@ -96,10 +96,10 @@ for files in range(num_files):
 				counter = 0
 				break
 		
-		lx = min(LX, RX) + (w // 4)
-		rx = max(LX, RX) + (w // 4)
-		ty = min(TY, BY) + (h // 4)
-		by = max(TY, BY) + (h // 4)
+		lx = (min(LX, RX) * 2/3) + (w // 4)
+		rx = (max(LX, RX) * 2/3) + (w // 4)
+		ty = (min(TY, BY) * 2/3) + (h // 4)
+		by = (max(TY, BY) * 2/3) + (h // 4)
 		
 		if lx == rx and rx == ty and ty == by:
 			lx = 0
