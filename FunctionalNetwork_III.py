@@ -220,6 +220,23 @@ class FunctionalNetwork:
 		(FC5[rank], P5) = network.backprop(FC5[rank], P6, 0, alpha * rho, fcInput)
 		filter_loss = P5
 		
+		if rank in [1, 2, 3, 4]:
+			comm.send([FC6[rank], FC5[rank]], dest = 0)
+		
+		if rank == 0:
+			data1 = comm.recv(source = 1)
+			data2 = comm.recv(source = 2)
+			data3 = comm.recv(source = 3)
+			data4 = comm.recv(source = 4)
+			FC6[1] = data1[0]
+			FC5[1] = data1[1]
+			FC6[2] = data2[0]
+			FC5[2] = data2[1]
+			FC6[3] = data3[0]
+			FC5[3] = data3[1]
+			FC6[4] = data4[0]
+			FC5[4] = data4[1]
+		
 		print("fb")
 		filter_matrix = [0, 0, 0, 0, 0, 0, 0, 0]
 		
@@ -279,22 +296,51 @@ class FunctionalNetwork:
 			eMap = algorithm.convolution(CV2[rank][j], fMap, 2)
 			
 			CV1[rank][j] = optimizerMV.optimize(eMap, sMaps1[rank][j], network.anti_pool(sMaps2[rank][j], 64, 64), CV1[rank][j], alpha * rho)
-			
 			# conv = algorithm.anticonvolution(eMap, np.array(sMaps1[rank][j]), 2)
 			# delta = network.multiply(conv, alpha)
 			# CV1[rank][j] = network.add([CV1[rank][j], delta])
 		print("p")
+		
+		try:
+			CV1.remove(0)
+			CV2.remove(0)
+			CV3.remove(0)
+			CV4.remove(0)
+			
+			CV1.remove(0)
+			CV2.remove(0)
+			CV3.remove(0)
+			CV4.remove(0)
+			
+			CV1.remove(0)
+			CV2.remove(0)
+			CV3.remove(0)
+			CV4.remove(0)
+			
+			CV1.remove(0)
+			CV2.remove(0)
+			CV3.remove(0)
+			CV4.remove(0)
+			
+			CV1 = CV1[0]
+			CV2 = CV2[0]
+			CV3 = CV3[0]
+			CV4 = CV4[0]
+		except:
+			pass
+
 
 		if rank in [1, 2, 3, 4]:
-			comm.send([CV1[rank], CV2[rank], CV3[rank], CV4[rank]], dest = 0)
+			comm.send([CV1, CV2, CV3, CV4], dest = 0)
 		if rank == 0:
+			news = [CV1, CV2, CV3, CV4]
 			CVAs = comm.recv(source = 1)
 			CVBs = comm.recv(source = 2)
 			CVCs = comm.recv(source = 3)
 			CVDs = comm.recv(source = 4)
 			filters = []
-			for i in range(5):
-				filters.append([CV1[i], CVAs[i], CVBs[i], CVCs[i], CVDs[i]])
+			for i in range(4):
+				filters.append([news[i], CVAs[i], CVBs[i], CVCs[i], CVDs[i]])
 				
 			comm.send(filters, dest = 1)
 			comm.send(filters, dest = 2)
@@ -317,7 +363,16 @@ class FunctionalNetwork:
 					
 				for n in range(5):
 					filters[rank][n][m] = matrices[n]
+			
+			comm.send(filters[rank], dest = 4)
+		
+		filters1 = comm.recv(source = 0)
+		filters2 = comm.recv(source = 1)
+		filters3 = comm.recv(source = 2)
+		filters4 = comm.recv(source = 3)
 
+		filters = [filters1, filters2, filters3, filters4]
+		
 		final_nodes = [FC5, FC6]
 		
 		final_network = [filters, final_nodes, SF]

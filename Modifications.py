@@ -171,7 +171,7 @@ class Modifications:
 		return neuralDropout
 	
 	def determinants(convolutional_layers):
-		for i in range(len(convolutional_layers):
+		for i in range(len(convolutional_layers)):
 			for j in range(5):
 				for k in range(len(convolutional_layers[i][j])):
 					det = 1
@@ -179,7 +179,7 @@ class Modifications:
 						det = np.linalg.det(convolutional_layers[i][j][k])
 					except:
 						pass
-					normalized = np.sqrt(abs(det)
+					normalized = np.sqrt(abs(det))
 					convolutional_layers[i][j][k] = np.divide(convolutional_layers[i][j][k], normalized)
 		return convolutional_layers
 	

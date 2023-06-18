@@ -31,6 +31,14 @@ class network:
 				section1.append(filter2)
 			layer1.append(section1)
 		return layer1
+	
+	def parallel_filters(num, size):
+		layer1 = []
+		for i in range(num):
+			filter1 = np.random.rand(size, size)
+			filter2 = filter1.tolist()
+			layer1.append(filter2)
+		return layer1
 
 	def generate_feature_maps(layer, image): # takes in a layer of node filters and images and creates feature maps
 		featureMaps1 = []
@@ -127,6 +135,13 @@ class network:
 				added = (actuals[i][j] - coords[i][j]) ** 2
 				tot.append(added)
 			loss.append(tot)
+		return loss
+
+	def mseINDIV(actuals, coords):
+		loss = []
+		for j in range(4):
+			added = (actuals[j] - coords[j]) ** 2
+			loss.append(added)
 		return loss
 
 	def backprop(layer, vals, activation, alpha, FP):

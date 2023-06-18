@@ -73,6 +73,9 @@ class SNN:
 		return matrix
 
 	def states(images, featureMaps): # applies events with states
+		# feeds in one (1) set of images
+		# meaning FIVE images
+		# and then feature maps
 		sAB = []
 		sAC = []
 		sAD = []
@@ -83,7 +86,7 @@ class SNN:
 		sCD = []
 		sCE = []
 		sDE = []
-		for i in range(len(images[0])):
+		for i in range(1):
 			sAB.append(techniques.s(images[0], images[1]))
 			sAC.append(techniques.s(images[0], images[2]))
 			sAD.append(techniques.s(images[0], images[3]))
@@ -99,48 +102,62 @@ class SNN:
 		
 		for i in range(len(featureMaps[0])): # recreates forward pass w/ coefficients
 		# have to divide by sum of coefficients at the end
-			place = len(featureMaps[0]) // len(images[0])
-			j = i // place
+			j = 0
 		
-			BsAB = multiply(featureMaps[1][i], sAB[j])
-			CsAC = multiply(featureMaps[2][i], sAC[j])
-			DsAD = multiply(featureMaps[3][i], sAD[j])
-			EsAE = multiply(featureMaps[4][i], sAE[j])
+			BsAB = SNN.multiply(featureMaps[1][i], sAB[j])
+			CsAC = SNN.multiply(featureMaps[2][i], sAC[j])
+			DsAD = SNN.multiply(featureMaps[3][i], sAD[j])
+			EsAE = SNN.multiply(featureMaps[4][i], sAE[j])
 			
-			totA = add([featureMaps[0][i], BsAB, CsAC, DsAD, EsAE])
-			forwardPass[0].append(totA)
+			totA = SNN.add([featureMaps[0][i], BsAB, CsAC, DsAD, EsAE])
+			sumA = 1 + sAB[j] + sAC[j] + sAD[j] + sAE[j]
+			denomA = 1.0 / sumA
+			finA = SNN.multiply(totA, denomA)
+			forwardPass[0].append(finA)
 			
-			AsAB = multiply(featureMaps[0][i], sAB[j])
-			CsBC = multiply(featureMaps[2][i], sBC[j])
-			DsBD = multiply(featureMaps[3][i], sBD[j])
-			EsBE = multiply(featureMaps[4][i], sBE[j])
+			AsAB = SNN.multiply(featureMaps[0][i], sAB[j])
+			CsBC = SNN.multiply(featureMaps[2][i], sBC[j])
+			DsBD = SNN.multiply(featureMaps[3][i], sBD[j])
+			EsBE = SNN.multiply(featureMaps[4][i], sBE[j])
 			
-			totB = add([AsAB, featureMaps[1][i], CsBC, DsBD, EsBE])
-			forwardPass[1].append(totB)
+			totB = SNN.add([AsAB, featureMaps[1][i], CsBC, DsBD, EsBE])
+			sumB = sAB[j] + 1 + sBC[j] + sBD[j] + sBE[j]
+			denomB = 1.0 / sumA
+			finB = SNN.multiply(totB, denomB)
+			forwardPass[1].append(finB)
 			
-			AsAC = multiply(featureMaps[0][i], sAC[j])
-			BsBC = multiply(featureMaps[1][i], sBC[j])
-			DsCD = multiply(featureMaps[3][i], sCD[j])
-			EsCE = multiply(featureMaps[4][i], sCE[j])
+			AsAC = SNN.multiply(featureMaps[0][i], sAC[j])
+			BsBC = SNN.multiply(featureMaps[1][i], sBC[j])
+			DsCD = SNN.multiply(featureMaps[3][i], sCD[j])
+			EsCE = SNN.multiply(featureMaps[4][i], sCE[j])
 			
-			totC = add([AsAC, BsBC, featureMaps[2][i], DsCD, EsCE])
-			forwardPass[2].append(totC)
+			totC = SNN.add([AsAC, BsBC, featureMaps[2][i], DsCD, EsCE])
+			sumC = sAC[j] + sBC[j] + 1 + sCD[j] + sCE[j]
+			denomC = 1.0 / sumC
+			finC = SNN.multiply(totC, denomC)
+			forwardPass[2].append(finC)
 			
-			AsAD = multiply(featureMaps[0][i], sAD[j])
-			BsBD = multiply(featureMaps[1][i], sBD[j])
-			CsCD = multiply(featureMaps[2][i], sCD[j])
-			EsDE = multiply(featureMaps[4][i], sDE[j])
+			AsAD = SNN.multiply(featureMaps[0][i], sAD[j])
+			BsBD = SNN.multiply(featureMaps[1][i], sBD[j])
+			CsCD = SNN.multiply(featureMaps[2][i], sCD[j])
+			EsDE = SNN.multiply(featureMaps[4][i], sDE[j])
 			
-			totD = add([AsAD, BsBD, CsCD, featureMaps[3][i], EsDE])
-			forwardPass[3].append(totD)
+			totD = SNN.add([AsAD, BsBD, CsCD, featureMaps[3][i], EsDE])
+			sumD = sAD[j] + sBD[j] + sCD[j] + 1 + sDE[j]
+			denomD = 1.0 / sumD
+			finD = SNN.multiply(totD, denomD)
+			forwardPass[3].append(finD)
 			
-			AsAE = multiply(featureMaps[0][i], sAE[j])
-			BsBE = multiply(featureMaps[1][i], sBE[j])
-			CsCE = multiply(featureMaps[2][i], sCE[j])
-			DsDE = multiply(featureMaps[3][i], sDE[j])
+			AsAE = SNN.multiply(featureMaps[0][i], sAE[j])
+			BsBE = SNN.multiply(featureMaps[1][i], sBE[j])
+			CsCE = SNN.multiply(featureMaps[2][i], sCE[j])
+			DsDE = SNN.multiply(featureMaps[3][i], sDE[j])
 			
-			totE = add([AsAE, BsBE, CsCE, DsDE, featureMaps[4][i]])
-			forwardPass[4].append(totE)
+			totE = SNN.add([AsAE, BsBE, CsCE, DsDE, featureMaps[4][i]])
+			sumE = sAE[j] + sBE[j] + sCE[j] + sDE[j] + 1
+			denomE = 1.0 / sumE
+			finE = SNN.multiply(totE, denomE)
+			forwardPass[4].append(finE)
 		
 		return forwardPass
 """
