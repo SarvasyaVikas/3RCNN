@@ -5,6 +5,7 @@ import math
 from algorithm import algorithm
 from techniques import techniques
 from SNN import SNN
+from MPImodifiers import MPImodifiers
 
 class network:
 	def __init__(self):
@@ -160,6 +161,27 @@ class network:
 					activ = network.sigmoid(added)
 					change = activ * alpha
 				layer[i][0][j] -= change
+			propagated.append(propagates)
+		return (layer, propagated)
+		
+	def backpropNESTEROV(layer, vals, activation, alpha, FP, layerPREV, psi):
+		propagated = []
+		for i in range(len(layer)):
+			propagates = 0
+			for j in range(len(FP)):
+				added = FP[j] * vals[j]
+				propagate = added * layer[i][0][j]
+				propagates += propagate
+				changePREV = layerPREV[i][0][j] - layer[i][0][j]
+				change = 0
+				if activation == 0:
+					activ = network.leaky_relu(added)
+					change = activ * alpha
+				else:
+					activ = network.sigmoid(added)
+					change = activ * alpha
+				changeNEW = MPImodifiers.nesterovMomentum(changePREV, change, psi)
+				layer[i][0][j] -= changeNEW
 			propagated.append(propagates)
 		return (layer, propagated)
 
