@@ -4,10 +4,10 @@ Network 8,Delta 0,BASE,Images 2,maxFeatureMaps,Completed
 Network 9,Delta 0,BASE,Images 3,imageMasks,Completed
 Network 10,Delta 0,BASE,Images 4,frameDifferences,Completed
 Network 11,Delta 1,nesterovMomentum,Images 0,BASE,Completed
-Network 12,Delta 1,nesterovMomentum,Images 1,averageFeatureMaps,
-Network 13,Delta 1,nesterovMomentum,Images 2,maxFeatureMaps,
-Network 14,Delta 1,nesterovMomentum,Images 3,imageMasks,
-Network 15,Delta 1,nesterovMomentum,Images 4,frameDifferences,
+Network 12,Delta 1,nesterovMomentum,Images 1,averageFeatureMaps,Completed
+Network 13,Delta 1,nesterovMomentum,Images 2,maxFeatureMaps,Completed
+Network 14,Delta 1,nesterovMomentum,Images 3,imageMasks,Completed
+Network 15,Delta 1,nesterovMomentum,Images 4,frameDifferences,Completed
 Network 16,Delta 2,maclaurin,Images 0,BASE,
 Network 17,Delta 2,maclaurin,Images 1,averageFeatureMaps,
 Network 18,Delta 2,maclaurin,Images 2,maxFeatureMaps,
