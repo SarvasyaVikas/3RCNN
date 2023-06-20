@@ -25,7 +25,7 @@ FC6 = network.generate_layer(16, 4)
 SF = network.generate_layer(4, 2)
 filters = [CV1, CV2, CV3, CV4]
 nodes = [FC5, FC6]
-network = [filters, nodes, SF]
+networkS = [filters, nodes, SF]
 
 # ABOVE THIS: DO NOT TOUCH
 #
@@ -68,8 +68,8 @@ def save(networkN, code, losses):
 			
 	for c in range(len(SF)):
 		for j in range(len(SF[c][0])):
-			lst.append(SF[c][j][0][k])
-		lst.append(SF[c][j][1])
+			lst.append(SF[c][0][j])
+		lst.append(SF[c][1])
 	
 	print(lst)
 	csvfile = open("saved.csv", "a+")
@@ -119,14 +119,15 @@ def data(ptn, val = 0):
 	return (images, actuals)
 
 losses = [64, 64]
-nn = network
+neurals = [networkS]
+nn = networkS
 # scan 1
 scan_start = time.time()
 (Is1, As1) = data(1, val)
 for i in range(val):
 	start = time.time()
 	print(i)
-	pMap1 = FunctionalNetwork.F1(Is1[i][rank], network)
+	pMap1 = FunctionalNetwork.F1(Is1[i][rank], networkS)
 	if rank in [1, 2, 3, 4]:
 		comm.send(pMap1, dest = 0)
 	
@@ -152,7 +153,7 @@ for i in range(val):
 	if rank in [1, 2, 3, 4]:
 		sMap1 = comm.recv(source = 0)
 		
-	pMap2 = FunctionalNetwork.F2(sMap1, network)
+	pMap2 = FunctionalNetwork.F2(sMap1, networkS)
 	
 	if rank in [1, 2, 3, 4]:
 		comm.send(pMap2, dest = 0)
@@ -179,7 +180,7 @@ for i in range(val):
 	if rank in [1, 2, 3, 4]:
 		sMap2 = comm.recv(source = 0)
 	
-	pMap3 = FunctionalNetwork.F3(sMap2, network)
+	pMap3 = FunctionalNetwork.F3(sMap2, networkS)
 	
 	if rank in [1, 2, 3, 4]:
 		comm.send(pMap3, dest = 0)
@@ -206,7 +207,7 @@ for i in range(val):
 	if rank in [1, 2, 3, 4]:
 		sMap3 = comm.recv(source = 0)
 	
-	pMap4 = FunctionalNetwork.F4(sMap3, network)
+	pMap4 = FunctionalNetwork.F4(sMap3, networkS)
 	
 	if rank in [1, 2, 3, 4]:
 		comm.send(pMap4, dest = 0)
@@ -235,14 +236,16 @@ for i in range(val):
 	
 	maps = MPImodifiers.mfm(Is1[i][rank], sMap4)
 	
-	(network, error) = FunctionalNetwork.BP(network, As1[i][rank], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
-	
+	(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
+	neurals.append(networkS)
 	if error < losses[-1]:
-		nn = network
+		nn = networkS
 	losses.append(error)
 	end = time.time()
 	print(end - start)
 	
 end_scan = time.time()
 print(end_scan - start_scan)
+for i in range(len(neurals)):
+	save(neurals[i], "SCAN1_ATT1_RANK{}_PLACE{}".format(rank, i), losses)
 save(nn, "SCAN1_ATT1_RANK{}".format(rank), losses)

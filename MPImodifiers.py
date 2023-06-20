@@ -4,7 +4,6 @@ import random
 from algorithm import algorithm
 from techniques import techniques
 from SNN import SNN
-from network import network
 
 class MPImodifiers:
 	def __init__(self):

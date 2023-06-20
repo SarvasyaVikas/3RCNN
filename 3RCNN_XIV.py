@@ -4,7 +4,7 @@ import csv
 import fnmatch
 import os
 import csv
-from FunctionalNetwork_IV import FunctionalNetwork
+from FunctionalNetwork_XI import FunctionalNetwork
 from network import network
 from optimizerMV import optimizerMV
 import time
@@ -36,6 +36,7 @@ networkS = [filters, nodes, SF]
 # 1 scans
 val = 40
 alpha = 0.01
+psi = 0.8
 
 def save(networkN, code, losses):
 	filters = networkN[0]
@@ -119,8 +120,8 @@ def data(ptn, val = 0):
 	return (images, actuals)
 
 losses = [64, 64]
-neurals = [networkS]
 nn = networkS
+neurals = [networkS]
 # scan 1
 scan_start = time.time()
 (Is1, As1) = data(1, val)
@@ -249,7 +250,8 @@ for i in range(val):
 	if rank in [1, 2, 3, 4]:
 		sMap4 = comm.recv(source = 0)
 	
-	(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], sMap4, sMap3, sMap2, sMap1)
+	(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], sMap4, sMap3, sMap2, sMap1, neurals[-1], psi)
+	
 	neurals.append(networkS)
 	if error < losses[-1]:
 		nn = networkS
