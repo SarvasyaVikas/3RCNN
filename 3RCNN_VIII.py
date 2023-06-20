@@ -233,7 +233,9 @@ for i in range(val):
 	if rank in [1, 2, 3, 4]:
 		sMap4 = comm.recv(source = 0)
 	
-	(network, error) = FunctionalNetwork.BP(network, As1[i][rank], alpha, losses[-1], sMap4, sMap3, sMap2, sMap1)
+	maps = MPImodifiers.mfm(Is1[i][rank], sMap4)
+	
+	(network, error) = FunctionalNetwork.BP(network, As1[i][rank], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
 	
 	if error < losses[-1]:
 		nn = network
