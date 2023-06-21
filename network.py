@@ -185,6 +185,30 @@ class network:
 			propagated.append(propagates)
 		return (layer, propagated)
 
+	def backpropMACLAURIN(layer, vals, activation, alpha, FP, layerPREVS, psi, stretch):
+		propagated = []
+		for i in range(len(layer)):
+			propagates = 0
+			for j in range(len(FP)):
+				added = FP[j] * vals[j]
+				propagate = added * layer[i][0][j]
+				propagates += propagate
+				changes = []
+				for k in range(layerPREVS):
+					changePREV = layerPREVS[k][i][0][j] - layer[i][0][j]
+					changes.append(changePREV)
+				change = 0
+				if activation == 0:
+					activ = network.leaky_relu(added)
+					change = activ * alpha
+				else:
+					activ = network.sigmoid(added)
+					change = activ * alpha
+				changeNEW = MPImodifiers.maclaurin(changePREV, change, psi)
+				layer[i][0][j] -= changeNEW
+			propagated.append(propagates)
+		return (layer, propagated)
+	
 	def add(matrices): # basic add matrix function for ease of access
 		tot = []
 		for i in range(len(matrices[0])):
