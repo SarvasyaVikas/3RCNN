@@ -266,6 +266,7 @@ for j in range(len(mult)):
 		save(nn, "SCAN{}_ATT1_RANK{}".format(mult[j][0], rank), losses)
 	
 	else:
+		spot = rank - 5
 		losses = [64, 64]
 		neurals = [networkS]
 		nn = networkS
@@ -275,11 +276,11 @@ for j in range(len(mult)):
 		for i in range(val):
 			start = time.time()
 			print(i)
-			pMap1 = FunctionalNetwork.F1(Is1[i][rank], networkS)
-			if rank in [1, 2, 3, 4]:
+			pMap1 = FunctionalNetwork.F1(Is1[i][spot], networkS)
+			if spot in [1, 2, 3, 4]:
 				comm.send(pMap1, dest = 0)
 			
-			if rank == 0:
+			if spot == 0:
 				pMapB = comm.recv(source = 1)
 				pMapC = comm.recv(source = 2)
 				pMapD = comm.recv(source = 3)
@@ -298,15 +299,15 @@ for j in range(len(mult)):
 				comm.send(sMapD, dest = 3)
 				comm.send(sMapE, dest = 4)
 				
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				sMap1 = comm.recv(source = 0)
 				
 			pMap2 = FunctionalNetwork.F2(sMap1, networkS)
 			
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				comm.send(pMap2, dest = 0)
 			
-			if rank == 0:
+			if spot == 0:
 				pMapB = comm.recv(source = 1)
 				pMapC = comm.recv(source = 2)
 				pMapD = comm.recv(source = 3)
@@ -325,15 +326,15 @@ for j in range(len(mult)):
 				comm.send(sMapD, dest = 3)
 				comm.send(sMapE, dest = 4)
 				
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				sMap2 = comm.recv(source = 0)
 			
 			pMap3 = FunctionalNetwork.F3(sMap2, networkS)
 			
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				comm.send(pMap3, dest = 0)
 			
-			if rank == 0:
+			if spot == 0:
 				pMapB = comm.recv(source = 1)
 				pMapC = comm.recv(source = 2)
 				pMapD = comm.recv(source = 3)
@@ -352,15 +353,15 @@ for j in range(len(mult)):
 				comm.send(sMapD, dest = 3)
 				comm.send(sMapE, dest = 4)
 				
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				sMap3 = comm.recv(source = 0)
 			
 			pMap4 = FunctionalNetwork.F4(sMap3, networkS)
 			
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				comm.send(pMap4, dest = 0)
 			
-			if rank == 0:
+			if spot == 0:
 				pMapB = comm.recv(source = 1)
 				pMapC = comm.recv(source = 2)
 				pMapD = comm.recv(source = 3)
@@ -379,12 +380,12 @@ for j in range(len(mult)):
 				comm.send(sMapD, dest = 3)
 				comm.send(sMapE, dest = 4)
 				
-			if rank in [1, 2, 3, 4]:
+			if spot in [1, 2, 3, 4]:
 				sMap4 = comm.recv(source = 0)
 			
-			maps = MPImodifiers.mfm(Is1[i][rank], sMap4)
+			maps = MPImodifiers.mfm(Is1[i][spot], sMap4)
 			
-			(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
+			(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][spot], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
 			neurals.append(networkS)
 			if error < losses[-1]:
 				nn = networkS
@@ -395,5 +396,5 @@ for j in range(len(mult)):
 		end_scan = time.time()
 		print(end_scan - start_scan)
 		for i in range(len(neurals)):
-			save(neurals[i], "SCAN{]_ATT1_RANK{}_PLACE{}".format(mult[j][0], rank, i), losses)
-		save(nn, "SCAN{}_ATT1_RANK{}".format(mult[j][0], rank), losses)
+			save(neurals[i], "SCAN{]_ATT1_RANK{}_PLACE{}".format(mult[j][0], spot, i), losses)
+		save(nn, "SCAN{}_ATT1_RANK{}".format(mult[j][0], spot), losses)
