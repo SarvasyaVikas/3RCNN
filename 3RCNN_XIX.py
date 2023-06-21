@@ -129,7 +129,22 @@ scan_start = time.time()
 for i in range(val):
 	start = time.time()
 	print(i)
-	pMap1 = FunctionalNetwork.F1(Is1[i][rank], networkS)
+
+	if rank == 0:
+		img1 = MPImodifiers.image_masks(Is1[i][0], Is1[i][1], Is1[i][2], Is1[i][3], Is1[i][4])
+		img2 = MPImodifiers.image_masks(Is1[i][1], Is1[i][0], Is1[i][2], Is1[i][3], Is1[i][4])
+		img3 = MPImodifiers.image_masks(Is1[i][2], Is1[i][1], Is1[i][0], Is1[i][3], Is1[i][4])
+		img4 = MPImodifiers.image_masks(Is1[i][3], Is1[i][1], Is1[i][2], Is1[i][0], Is1[i][4])
+		img5 = MPImodifiers.image_masks(Is1[i][4], Is1[i][1], Is1[i][2], Is1[i][3], Is1[i][0])
+		
+		imgs = [img1, img2, img3, img4, img5]
+		for j in range(1, 5):
+			comm.send(imgs, dest = j)
+	
+	if rank in [1, 2, 3, 4]:
+		imgs = comm.recv(source = 0)
+	
+	pMap1 = FunctionalNetwork.F1(imgs[rank], networkS)
 	if rank in [1, 2, 3, 4]:
 		comm.send(pMap1, dest = 0)
 	
@@ -139,7 +154,7 @@ for i in range(val):
 		pMapD = comm.recv(source = 3)
 		pMapE = comm.recv(source = 4)
 		
-		pMaps = SNN.states(Is1[i], [pMap1, pMapB, pMapC, pMapD, pMapE])
+		pMaps = SNN.states(imgs, [pMap1, pMapB, pMapC, pMapD, pMapE])
 		
 		sMap1 = pMaps[0]
 		sMapB = pMaps[1]
@@ -166,7 +181,7 @@ for i in range(val):
 		pMapD = comm.recv(source = 3)
 		pMapE = comm.recv(source = 4)
 		
-		pMaps = SNN.states(Is1[i], [pMap2, pMapB, pMapC, pMapD, pMapE])
+		pMaps = SNN.states(imgs, [pMap2, pMapB, pMapC, pMapD, pMapE])
 		
 		sMap2 = pMaps[0]
 		sMapB = pMaps[1]
@@ -193,7 +208,7 @@ for i in range(val):
 		pMapD = comm.recv(source = 3)
 		pMapE = comm.recv(source = 4)
 		
-		pMaps = SNN.states(Is1[i], [pMap3, pMapB, pMapC, pMapD, pMapE])
+		pMaps = SNN.states(imgs, [pMap3, pMapB, pMapC, pMapD, pMapE])
 		
 		sMap3 = pMaps[0]
 		sMapB = pMaps[1]
@@ -220,7 +235,7 @@ for i in range(val):
 		pMapD = comm.recv(source = 3)
 		pMapE = comm.recv(source = 4)
 		
-		pMaps = SNN.states(Is1[i], [pMap4, pMapB, pMapC, pMapD, pMapE])
+		pMaps = SNN.states(imgs, [pMap4, pMapB, pMapC, pMapD, pMapE])
 		
 		sMap4 = pMaps[0]
 		sMapB = pMaps[1]
