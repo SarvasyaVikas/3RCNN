@@ -45,7 +45,7 @@ class FunctionalNetwork:
 		
 		return pMap4
 
-	def BP(networkNS, actual, alpha, prev, sMaps4, sMaps3, sMaps2, sMaps1, networkPREV, psi):
+	def BP(networkNS, actual, alpha, prev, sMaps4, sMaps3, sMaps2, sMaps1, networkPREVS, psi, stretch):
 		print("fp")
 		
 		# artificial forward propagation
@@ -68,12 +68,21 @@ class FunctionalNetwork:
 		
 		for j in range(len(loss)):
 			error += abs(loss[j])
-			
-		(networkNS[2], _) = network.backpropNESTEROV(networkNS[2], spec, 0, alpha, softmax, networkPREV[2], psi)
+		prevs2 = []
+		for a in range(len(networkPREVS)):
+			prevs2.append(networkPREVS[a][2])
+		(networkNS[2], _) = network.backpropMACLAURIN(networkNS[2], spec, 0, alpha, softmax, prevs2, psi, stretch)
 		rho = network.direction(prev, error)
-			
-		(networkNS[1][1], P6) = network.backpropNESTEROV(networkNS[1][1], loss, 1, alpha * rho, fcOutput, networkPREV[1][1], psi)
-		(networkNS[1][0], P5) = network.backpropNESTEROV(networkNS[1][0], P6, 0, alpha * rho, fcInput, networkPREV[1][0], psi)
+		
+		prevs11 = []
+		for a in range(len(networkPREVS)):
+			prevs2.append(networkPREVS[a][1][1])
+		prevs10 = []
+		for a in range(len(networkPREVS)):
+			prevs2.append(networkPREVS[a][1][0])
+		
+		(networkNS[1][1], P6) = network.backpropMACLAURIN(networkNS[1][1], loss, 1, alpha * rho, fcOutput, prevs11, psi, stretch)
+		(networkNS[1][0], P5) = network.backpropMACLAURIN(networkNS[1][0], P6, 0, alpha * rho, fcInput, prevs10, psi, stretch)
 		filter_loss = P5
 		
 		print("fb")
