@@ -10,6 +10,7 @@ from optimizerMV import optimizerMV
 from Modifications import Modifications
 import time
 from mpi4py import MPI
+from MPImodifiers import MPImodifiers
 
 class FunctionalNetwork:
 	def __init__(self):
@@ -89,7 +90,7 @@ class FunctionalNetwork:
 		print("4")
 		for j in range(len(networkNS[0][3])):
 			conv = algorithm.anticonvolution(filter_matrix, np.array(sMaps4[j]), 1)
-			deltaPREV = networkPREV[0][3][j] - networkNS[0][3][j]
+			deltaPREV = np.subtract(networkPREV[0][3][j], networkNS[0][3][j])
 			delta = network.multiply(conv, alpha * rho)
 			deltaNEW = MPImodifiers.nesterovMomentum(deltaPREV, delta, psi)
 			networkNS[0][3][j] = np.subtract(networkNS[0][3][j], deltaNEW)
