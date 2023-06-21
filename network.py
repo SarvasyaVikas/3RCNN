@@ -204,7 +204,7 @@ class network:
 				else:
 					activ = network.sigmoid(added)
 					change = activ * alpha
-				changeNEW = MPImodifiers.maclaurin(changePREV, change, psi)
+				changeNEW = MPImodifiers.maclaurin(changes, change, psi)
 				layer[i][0][j] -= changeNEW
 			propagated.append(propagates)
 		return (layer, propagated)
