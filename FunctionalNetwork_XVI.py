@@ -101,19 +101,18 @@ class FunctionalNetwork:
 			conv = algorithm.anticonvolution(filter_matrix, np.array(sMaps4[j]), 1)
 			prevsFILT4 = []
 			for a in range(len(networkPREVS)):
-				prevsFILT4.append(networkPREVS[a][0][3][j]
+				prevsFILT4.append(networkPREVS[a][0][3][j])
 						  
 			changes = []
 			mini = min(stretch, len(prevsFILT4))
-			layerPREVS.append(layer)
+			prevsFILT4.append(networkNS[0][3][j])
 			for k in range(mini):
-				changePREV = layerPREVS[k - mini][i][0][j] - layerPREVS[k - mini - 1][0][j]
+				changePREV = prevsFILT4[k - mini][i][0][j] - prevsFILT4[k - mini - 1][0][j]
 				activi = network.leaky_relu(changePREV)
 				changes.append(activi)
-						  
-			deltaPREV = networkPREV[0][3][j] - networkNS[0][3][j]
+
 			delta = network.multiply(conv, alpha * rho)
-			deltaNEW = MPImodifiers.nesterovMomentum(deltaPREV, delta, psi)
+			deltaNEW = MPImodifiers.maclaurin(changes, psi, stretch)
 			networkNS[0][3][j] = np.subtract(networkNS[0][3][j], deltaNEW)
 		cRow = []
 		print("3")
