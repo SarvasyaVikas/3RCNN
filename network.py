@@ -194,9 +194,12 @@ class network:
 				propagate = added * layer[i][0][j]
 				propagates += propagate
 				changes = []
-				for k in range(layerPREVS):
-					changePREV = layerPREVS[k][i][0][j] - layer[i][0][j]
-					changes.append(changePREV)
+				mini = min(stretch, len(layerPREVS)
+				layerPREVS.append(layer)
+				for k in range(mini):
+					changePREV = layerPREVS[k - mini][i][0][j] - layerPREVS[k - mini - 1][0][j]
+					activi = network.leaky_relu(changePREV)
+					changes.append(activi)
 				change = 0
 				if activation == 0:
 					activ = network.leaky_relu(added)
@@ -204,7 +207,7 @@ class network:
 				else:
 					activ = network.sigmoid(added)
 					change = activ * alpha
-				changeNEW = MPImodifiers.maclaurin(changes, change, psi)
+				changeNEW = MPImodifiers.maclaurin(changes, psi, stretch)
 				layer[i][0][j] -= changeNEW
 			propagated.append(propagates)
 		return (layer, propagated)
