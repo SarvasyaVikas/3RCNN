@@ -98,7 +98,7 @@ def div(lst, val):
 		fin.append(new)
 	return fin
 
-def data(ptn, val = 0):
+def data(ptn, start = 0, val = 0):
 	rows = []
 	with open("3RCNN_Data_Annotations.csv") as csvfile:
 		csvreader = csv.reader(csvfile, delimiter = ",")
@@ -109,7 +109,7 @@ def data(ptn, val = 0):
 		val = len(rows) - 4
 	images = []
 	actuals = []
-	for i in range(val):
+	for i in range(start, val):
 		vals1 = [int(rows[i][3]), int(rows[i][4]), int(rows[i][5]), int(rows[i][6])]
 		vals2 = [int(rows[i + 1][3]), int(rows[i + 1][4]), int(rows[i + 1][5]), int(rows[i + 1][6])]
 		vals3 = [int(rows[i + 2][3]), int(rows[i + 2][4]), int(rows[i + 2][5]), int(rows[i + 2][6])]
