@@ -139,7 +139,7 @@ for j in range(len(mult)):
 		# scan 1
 		scan_start = time.time()
 		(Is1, As1) = data(mult[j][0], mult[j][1], mult[j][2])
-		for i in range(val):
+		for i in range(mult[j][1], mult[j][2]):
 			start = time.time()
 			print(i)
 			pMap1 = FunctionalNetwork.F1(Is1[i][rank], networkS)
@@ -272,8 +272,8 @@ for j in range(len(mult)):
 		nn = networkS
 		# scan 1
 		scan_start = time.time()
-		(Is1, As1) = data(1, val)
-		for i in range(val):
+		(Is1, As1) = data(mult[j][0], mult[j][1], mult[j][2])
+		for i in range(mult[j][1], mult[j][2]):
 			start = time.time()
 			print(i)
 			pMap1 = FunctionalNetwork.F1(Is1[i][spot], networkS)

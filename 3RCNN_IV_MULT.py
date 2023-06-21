@@ -84,7 +84,50 @@ def save(networkN, code, losses):
 	csvwriter = csv.writer(csvfile)
 	csvwriter.writerow(lst)
 	csvfile.close()
+
+def unpack(row, networkI):
+	count = 0
+	cop = row.copy()
+	for i in range(len(row)):
+		if str(row[i]) == "S":
+			count = i + 1
 	
+	 	if i == count:
+	 		for i in range(len(row)):
+	 			if i >= count:
+	 				cop[i] = 0
+	 			else:
+	 				cop[i] = 1
+	 	
+	 		for a in range(len(networkI[0])):
+	 			for j in range(len(networkI[0][a])):
+	 				for k in range(len(networkI[0][a][j])):
+	 					for l in range(len(networkI[0][a][j][k])):
+	 						adj = cop.index(0, count)
+	 						networkI[0][a][j][k][l] = row[adj]
+	 						cop[adj] = 1
+	 		
+	 		for b in range(networkI[1])):
+	 			for j in range(len(networkI[1][b])):
+	 				for k in range(len(networkI[1][b][j])):
+	 					adj = cop.index(0, count + 1664)
+	 					networkI[1][b][j][0][k] = row[adj]
+	 					cop[adj] = 1
+	 				adj = cop.index(0, count + 1664)
+	 				networkI[1][b][j][1] = row[adj]
+	 				cop[adj] = 1
+	 		
+	 		for c in range(len(networkI[2])):
+	 			for j in range(len(networkI[2][c][0])):
+	 				adj = cop.index(0, count + 1664)
+	 				networkI[2][c][0][j] = row[adj]
+	 				cop[adj] = 1
+	 			adj = cop.index(0, count + 1664)
+	 			networkI[2][c][1] = row[adj]
+	 			cop[adj] = 1
+	 		
+	 		return networkI
+	 
 
 def div(lst, val):
 	fin = []
@@ -133,7 +176,7 @@ for j in range(len(mult)):
 	# scan 1
 	scan_start = time.time()
 	(Is1, As1) = data(mult[j][0], mult[j][1], mult[j][2])
-	for i in range(val):
+	for i in range(mult[j][1], mult[j][2]):
 		start = time.time()
 		print(i)
 		pMap1 = FunctionalNetwork.F1(Is1[i][rank], networkS)
