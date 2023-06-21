@@ -194,7 +194,7 @@ class network:
 				propagate = added * layer[i][0][j]
 				propagates += propagate
 				changes = []
-				mini = min(stretch, len(layerPREVS)
+				mini = min(stretch, len(layerPREVS))
 				layerPREVS.append(layer)
 				for k in range(mini):
 					changePREV = layerPREVS[k - mini][i][0][j] - layerPREVS[k - mini - 1][0][j]
