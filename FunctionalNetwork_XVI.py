@@ -126,7 +126,11 @@ class FunctionalNetwork:
 			
 			cMap = algorithm.convolution(avg, fMap, 1) # this is l
 			
-			networkNS[0][2][j] = optimizerMV.optimizeNESTEROV(cMap, sMaps3[j], apS, networkNS[0][2][j], alpha * rho, networkPREV[0][2][j], psi) # OPTIMIZER
+			fS = []
+			for a in range(len(networkPREVS)):
+				fS.append(networkPREVS[a][0][2][j])
+			
+			networkNS[0][2][j] = optimizerMV.optimizeMACLAURIN(cMap, sMaps3[j], apS, networkNS[0][2][j], alpha * rho, fS, psi, stretch) # OPTIMIZER
 			cRow.append(cMap)
 		print("12")
 		for j in range(len(networkNS[0][1])):
@@ -140,12 +144,20 @@ class FunctionalNetwork:
 			apS = network.anti_pool(np.array(avgS), 32, 32)
 			dMap = algorithm.convolution(avg, avgF, 1)
 			
-			networkNS[0][1][j] = optimizerMV.optimizeNESTEROV(dMap, sMaps2[j], apS, networkNS[0][1][j], alpha * rho, networkPREV[0][2][j], psi)
+			fS = []
+			for a in range(len(networkPREVS)):
+				fS.append(networkPREVS[a][0][1][j])
+			
+			networkNS[0][1][j] = optimizerMV.optimizeMACLAURIN(dMap, sMaps2[j], apS, networkNS[0][1][j], alpha * rho, fS, psi, stretch)
 			
 			fMap = network.anti_pool(np.array(dMap), 64, 64)
 			eMap = algorithm.convolution(networkNS[0][1][j], fMap, 2)
 			
-			networkNS[0][0][j] = optimizerMV.optimizeNESTEROV(eMap, sMaps1[j], network.anti_pool(sMaps2[j], 64, 64), networkNS[0][0][j], alpha * rho, networkPREV[0][2][j], psi)
+			fS = []
+			for a in range(len(networkPREVS)):
+				fS.append(networkPREVS[a][0][0][j])
+			
+			networkNS[0][0][j] = optimizerMV.optimizeMACLAURIN(eMap, sMaps1[j], network.anti_pool(sMaps2[j], 64, 64), networkNS[0][0][j], alpha * rho, fS, psi, stretch)
 		
 		return (networkNS, error)
 	
