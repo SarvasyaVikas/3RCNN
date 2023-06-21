@@ -79,7 +79,6 @@ def save(networkN, code, losses):
 			lst.append(SF[c][0][j])
 		lst.append(SF[c][1])
 	
-	print(lst)
 	csvfile = open("saved.csv", "a+")
 	csvwriter = csv.writer(csvfile)
 	csvwriter.writerow(lst)
@@ -92,7 +91,7 @@ def unpack(row, networkI):
 		if str(row[i]) == "S":
 			count = i + 1
 	
-	 	if i == count:
+		if i == count:
 	 		for i in range(len(row)):
 	 			if i >= count:
 	 				cop[i] = 0
@@ -107,7 +106,7 @@ def unpack(row, networkI):
 	 						networkI[0][a][j][k][l] = row[adj]
 	 						cop[adj] = 1
 	 		
-	 		for b in range(networkI[1])):
+	 		for b in range(networkI[1]):
 	 			for j in range(len(networkI[1][b])):
 	 				for k in range(len(networkI[1][b][j])):
 	 					adj = cop.index(0, count + 1664)
@@ -184,7 +183,7 @@ for j in range(len(mult)):
 	for i in range(mult[j][1], mult[j][2]):
 		start = time.time()
 		print(i)
-		pMap1 = FunctionalNetwork.F1(Is1[i][rank], networkS)
+		pMap1 = FunctionalNetwork.F1(Is1[i - mult[j][1]][rank], networkS)
 		if rank in [1, 2, 3, 4]:
 			comm.send(pMap1, dest = 0)
 		
@@ -194,7 +193,7 @@ for j in range(len(mult)):
 			pMapD = comm.recv(source = 3)
 			pMapE = comm.recv(source = 4)
 			
-			pMaps = SNN.states(Is1[i], [pMap1, pMapB, pMapC, pMapD, pMapE])
+			pMaps = SNN.states(Is1[i - mult[j][1]], [pMap1, pMapB, pMapC, pMapD, pMapE])
 			
 			sMap1 = pMaps[0]
 			sMapB = pMaps[1]
@@ -221,7 +220,7 @@ for j in range(len(mult)):
 			pMapD = comm.recv(source = 3)
 			pMapE = comm.recv(source = 4)
 			
-			pMaps = SNN.states(Is1[i], [pMap2, pMapB, pMapC, pMapD, pMapE])
+			pMaps = SNN.states(Is1[i - mult[j][1]], [pMap2, pMapB, pMapC, pMapD, pMapE])
 			
 			sMap2 = pMaps[0]
 			sMapB = pMaps[1]
@@ -248,7 +247,7 @@ for j in range(len(mult)):
 			pMapD = comm.recv(source = 3)
 			pMapE = comm.recv(source = 4)
 			
-			pMaps = SNN.states(Is1[i], [pMap3, pMapB, pMapC, pMapD, pMapE])
+			pMaps = SNN.states(Is1[i - mult[j][1]], [pMap3, pMapB, pMapC, pMapD, pMapE])
 			
 			sMap3 = pMaps[0]
 			sMapB = pMaps[1]
@@ -275,7 +274,7 @@ for j in range(len(mult)):
 			pMapD = comm.recv(source = 3)
 			pMapE = comm.recv(source = 4)
 			
-			pMaps = SNN.states(Is1[i], [pMap4, pMapB, pMapC, pMapD, pMapE])
+			pMaps = SNN.states(Is1[i - mult[j][1]], [pMap4, pMapB, pMapC, pMapD, pMapE])
 			
 			sMap4 = pMaps[0]
 			sMapB = pMaps[1]
@@ -291,7 +290,7 @@ for j in range(len(mult)):
 		if rank in [1, 2, 3, 4]:
 			sMap4 = comm.recv(source = 0)
 		
-		(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], sMap4, sMap3, sMap2, sMap1)
+		(networkS, error) = FunctionalNetwork.BP(networkS, As1[i - mult[j][1]][rank], alpha, losses[-1], sMap4, sMap3, sMap2, sMap1)
 		save(networkS, "SCAN{}_ATT1_RANK{}_PLACE{}".format(mult[j][0], rank, i), losses)
 		neurals.append(networkS)
 		if error < losses[-1]:
@@ -302,7 +301,6 @@ for j in range(len(mult)):
 		
 	end_scan = time.time()
 	print(end_scan - scan_start)
-	print(nn)
 	save(nn, "SCAN{}_ATT1_RANK{}".format(mult[j][0], rank), losses)
 	#
 	#
