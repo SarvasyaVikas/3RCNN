@@ -67,3 +67,30 @@ class optimizerMV:
 		tau = np.multiply(sigma, alpha)
 		zeta = np.subtract(f, MPImodifiers.nesterovMomentum(fCH, f, tau))
 		return zeta
+	
+	def optimizeMACLAURIN(l, sp, s, f, alpha, fPREVS, psi, stretch):
+		prevsFILT4 = []
+		for a in range(len(fPREVS)):
+			prevsFILT4.append(fPREVS[a])
+						  
+		changes = []
+		mini = min(stretch, len(prevsFILT4))
+		prevsFILT4.append(f)
+		for k in range(mini):
+			changePREV = prevsFILT4[k - mini] - prevsFILT4[k - mini - 1]
+			activi = network.leaky_relu(changePREV)
+			changes.append(activi)
+		deltaNEW = MPImodifiers.maclaurin(changes, psi, stretch)
+
+		pad_val = len(f) // 2
+		delta = algorithm.anticonvolution(l, s, pad_val)
+		ln = algorithm.convolution(delta, sp, pad_val)
+		ln = network.signed_ln(ln)
+		cs = np.dot(l, ln)
+		ce = np.multiply(l, ln)
+		theta = np.divide(cs, ce)
+		normalized = np.subtract(theta, 0.5)
+		sigma = optimizerMV.miniconvolve(normalized, delta)
+		tau = np.multiply(sigma, alpha)
+		zeta = np.subtract(f, deltaNEW)
+		return zeta
