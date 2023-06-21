@@ -37,11 +37,9 @@ class MPImodifiers:
 		for j in range(len(sMaps4)):
 			div4 = j // 4
 			div2 = j // 2
-			rMap1 = np.add(algorithm.max_pooling(sMaps1[div4]), sMaps2[div4])
-			rMap2 = np.add(algorithm.max_pooling(sMaps3[div2]), sMaps4[j])
-			rMap3 = algorithm.max_pooling(rMap1)
-			rMap4 = algorithm.max_pooling(rMap3)
-			rMap = np.add(rMap4, rMap2)
+			rMap1 = np.add(sMaps1[div4], sMaps2[div4])
+			rMap2 = np.add(sMaps3[div2], sMaps4[j])
+			rMap = np.add(rMap1, rMap2)
 			aMap = np.multiply(rMap, 0.25)
 			maps.append(aMap)	
 		return maps
@@ -164,15 +162,17 @@ class MPImodifiers:
 				convolutional_layers[i][k] = np.divide(convolutional_layers[i][k], normalized)
 		return convolutional_layers
 	
-	def learning_rate(convolutional_layers):
-		updated_layers = convolutional_layers.copy()
-		for i in range(len(convolutional_layers)):
-				for k in range(len(convolutional_layers[i])):
-					det = 1
-					try:
-						det = np.linalg.det(convolutional_layers[i][k])
-					except:
-						pass
-					rate = np.log(abs(det))
-					updated_layers[i][k] = rate
-		return updated_layers			
+	def learning_rate(convolutional_layer):
+		updated_layer = convolutional_layer.copy()
+		for i in range(len(convolutional_layer)):
+			det = 1
+			try:
+				det = np.linalg.det(convolutional_layer[i])
+			except:
+				pass
+			rate = np.log(abs(det))
+			sqrt = np.sqrt(rate)
+			recip = 1.0 / sqrt
+			updated_layers[i][k] = recip
+		
+		return updated_layer	
