@@ -105,8 +105,13 @@ def data(ptn, start = 0, val = 0):
 		for row in csvreader:
 			if int(row[1]) == ptn:
 				rows.append(row)
-	if val == 0:
-		val = len(rows) - 4
+	
+	try:
+		if val == 0:
+			val = len(rows) - 4
+	except:
+		pass
+	
 	images = []
 	actuals = []
 	for i in range(start, val):
@@ -252,6 +257,7 @@ for j in range(len(mult)):
 			maps = MPImodifiers.afm(sMap1, sMap2, sMap3, sMap4)
 			
 			(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
+			save(networkS, "SCAN{}_ATT1_RANK{}_PLACE{}".format(mult[j][0], rank, i), losses)
 			neurals.append(networkS)
 			if error < losses[-1]:
 				nn = networkS
@@ -261,8 +267,6 @@ for j in range(len(mult)):
 			
 		end_scan = time.time()
 		print(end_scan - start_scan)
-		for i in range(len(neurals)):
-			save(neurals[i], "SCAN{}_ATT1_RANK{}_PLACE{}".format(mult[j][0], rank, i), losses)
 		save(nn, "SCAN{}_ATT1_RANK{}".format(mult[j][0], rank), losses)
 	
 	else:
@@ -386,6 +390,7 @@ for j in range(len(mult)):
 			maps = MPImodifiers.mfm(Is1[i][spot], sMap4)
 			
 			(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][spot], alpha, losses[-1], maps, sMap3, sMap2, sMap1)
+			save(networkS, "SCAN{]_ATT1_RANK{}_PLACE{}".format(mult[j][0], spot, i), losses)
 			neurals.append(networkS)
 			if error < losses[-1]:
 				nn = networkS
@@ -395,6 +400,4 @@ for j in range(len(mult)):
 			
 		end_scan = time.time()
 		print(end_scan - start_scan)
-		for i in range(len(neurals)):
-			save(neurals[i], "SCAN{]_ATT1_RANK{}_PLACE{}".format(mult[j][0], spot, i), losses)
 		save(nn, "SCAN{}_ATT1_RANK{}".format(mult[j][0], spot), losses)
