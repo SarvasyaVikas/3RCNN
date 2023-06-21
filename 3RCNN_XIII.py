@@ -235,7 +235,7 @@ for i in range(val):
 	if rank in [1, 2, 3, 4]:
 		sMap4 = comm.recv(source = 0)
 	
-	maps = MPImodifiers.mfm(Is1[i], sMap4)
+	maps = MPImodifiers.mfm(Is1[i][rank], sMap4)
 	
 	(networkS, error) = FunctionalNetwork.BP(networkS, As1[i][rank], alpha, losses[-1], maps, sMap3, sMap2, sMap1, neurals[-1], psi)
 	
