@@ -37,9 +37,11 @@ class MPImodifiers:
 		for j in range(len(sMaps4)):
 			div4 = j // 4
 			div2 = j // 2
-			rMap1 = np.add(sMaps1[div4], sMaps2[div4])
-			rMap2 = np.add(sMaps3[div2], sMaps4[j])
-			rMap = np.add(rMap1, rMap2)
+			rMap1 = np.add(algorithm.max_pooling(sMaps1[div4]), sMaps2[div4])
+			rMap2 = np.add(algorithm.max_pooling(sMaps3[div2]), sMaps4[j])
+			rMap3 = algorithm.max_pooling(rMap1)
+			rMap4 = algorithm.max_pooling(rMap3)
+			rMap = np.add(rMap4, rMap2)
 			aMap = np.multiply(rMap, 0.25)
 			maps.append(aMap)	
 		return maps
