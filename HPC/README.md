@@ -1,1 +1,2 @@
-
+This directory contains files copied from my bridges2 account on the Pittsburgh Bridges Supercomputer. Due to the tedious nature of copying files between host and supercomputer account as well as the increased accessibility, resources, and computing speed on the supercomputer, many edits were made on the supercomputer account without being backed up to a browser website, like GitHub, or some other storage mechanism, like the ubuntu Virtual Machine I usually use for this programming.
+These files may contain repeats of files in the main branch, but these versions are updated, debugged, and efficient.
