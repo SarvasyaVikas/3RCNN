@@ -134,7 +134,7 @@ def data(ptn, start = 0, val = 0):
 for j in range(len(mult)):
     print("losses")
     losses = [64, 64]
-    nn = networkS
+    nn = [networkS, networkS, networkS, networkS, networkS]
     neurals = [networkS]
     # scan 1
     scan_start = time.time()
@@ -548,4 +548,4 @@ for j in range(len(mult)):
     print("end")
     print(end_scan - scan_start)
     for n in range(5):
-        save(nn[n], "SCAN1_ATT1_RANK{}_SECTION{}".format(rank, n), losses)
+    save(nn[n], "SCAN1_ATT1_RANK{}_SECTION{}".format(rank, n), losses)
