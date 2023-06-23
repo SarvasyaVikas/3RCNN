@@ -14,7 +14,7 @@ from SNN import SNN
 from parallel import parallel
 
 mult = [[1, 0, 40], [3, 40, 60], [4, 20, 40], [5, 40, 60], [6, 40, 60], [10, 0, 40], [12, 50, 70], [13, 50, 70], [14, 50, 70], [15, 30, 50]]
-
+mult = [[12, 50, 70]]
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
@@ -48,7 +48,7 @@ print("networkS")
 # 1 scans
 val = 40
 alpha = 0.01
-epochs = 10
+epochs = 17
 
 def save(networkN, code, losses):
     filters = networkN[0]
@@ -137,15 +137,15 @@ for j in range(len(mult)):
     print("losses")
     losses = [64, 64]
     try:
-    	a = len(networkS)
-    	b = len(networkS[0])
-    	c = len(networkS[0][0])
-    	if (a == 3) and (b == 4) and (c == 16):
-    		pass
-    	else:
-    		networkS = nn[rank // 16]
+        a = len(networkS)
+        b = len(networkS[0])
+        c = len(networkS[0][0])
+        if (a == 3) and (b == 4) and (c == 16):
+            pass
+        else:
+            networkS = nn[rank // 16]
     except:
-    	networkS = nn[rank // 16]
+        networkS = nn[rank // 16]
     # scan 1
     scan_start = time.time()
     print("scan start")
@@ -235,10 +235,10 @@ for j in range(len(mult)):
             lstA = [pMap3A]
             lstB = [pMap3B]
             for srcs in range(1, 5):
-		    pMapA = comm.recv(source = rank + srcs, tag = 0)
-		    pMapB = comm.recv(source = rank + srcs, tag = 1)
-		    lstA.append(pMapA)
-		    lstB.append(pMapB)
+                pMapA = comm.recv(source = rank + srcs, tag = 0)
+                pMapB = comm.recv(source = rank + srcs, tag = 1)
+                lstA.append(pMapA)
+                lstB.append(pMapB)
         
             pMapsA = SNN.states(Is1[u], lstA)
             pMapsB = SNN.states(Is1[u], lstB)
@@ -247,8 +247,8 @@ for j in range(len(mult)):
             sMap3B = pMapsB[0]
             
             for dests in range(1, 5):
-		    comm.send(pMapsA[dests], dest = rank + dests, tag = 0)
-		    comm.send(pMapsB[dests], dest = rank + dests, tag = 1)
+                comm.send(pMapsA[dests], dest = rank + dests, tag = 0)
+                comm.send(pMapsB[dests], dest = rank + dests, tag = 1)
         
         if (rank % 5) != 0:
             place = (rank // 5) * 5
@@ -285,16 +285,16 @@ for j in range(len(mult)):
             lstD = [pMap4D]
             
             for srcs in range(1, 5):
-		    pMapA = comm.recv(source = rank + srcs, tag = 0)
-		    pMapB = comm.recv(source = rank + srcs, tag = 1)
-		    pMapC = comm.recv(source = rank + srcs, tag = 2)
-		    pMapD = comm.recv(source = rank + srcs, tag = 3)
-		    
-		    lstA.append(pMapA)
-		    lstB.append(pMapB)
-		    lstC.append(pMapC)
-		    lstD.append(pMapD)
-		
+                pMapA = comm.recv(source = rank + srcs, tag = 0)
+                pMapB = comm.recv(source = rank + srcs, tag = 1)
+                pMapC = comm.recv(source = rank + srcs, tag = 2)
+                pMapD = comm.recv(source = rank + srcs, tag = 3)
+            
+                lstA.append(pMapA)
+                lstB.append(pMapB)
+                lstC.append(pMapC)
+                lstD.append(pMapD)
+        
             pMapsA = SNN.states(Is1[u], lstA)
             pMapsB = SNN.states(Is1[u], lstB)
             pMapsC = SNN.states(Is1[u], lstC)
@@ -306,10 +306,10 @@ for j in range(len(mult)):
             sMap4D = pMapsD[0]
             
             for dests in range(1, 5):      
-		    comm.send(sMap4A, dest = rank + dests, tag = 0)
-		    comm.send(sMap4B, dest = rank + dests, tag = 1)
-		    comm.send(sMap4C, dest = rank + dests, tag = 2)
-		    comm.send(sMap4D, dest = rank + dests, tag = 3)
+                comm.send(sMap4A, dest = rank + dests, tag = 0)
+                comm.send(sMap4B, dest = rank + dests, tag = 1)
+                comm.send(sMap4C, dest = rank + dests, tag = 2)
+                comm.send(sMap4D, dest = rank + dests, tag = 3)
         
         if (rank % 5) != 0:
             place = (rank // 5) * 5
@@ -411,16 +411,16 @@ for j in range(len(mult)):
                 mod = k % 16
                 sect = k // 16
                 pR = comm.recv(source = k)
-                for j in range(5):
-                    networkFULL[j][0][sect][mod] = pR[j][0][sect][mod]
-                    networkFULL[j][0][2][k] = pR[j][0][2][k]
+                for l in range(5):
+                    networkFULL[l][0][sect][mod] = pR[l][0][sect][mod]
+                    networkFULL[l][0][2][k] = pR[l][0][2][k]
             for k in range(32, 64):
                 pR = comm.recv(source = k)
                 place1 = 2 * (k - 32)
                 place2 = place1 + 1
-                for j in range(5):
-                    networkFULL[j][0][3][place1] = pR[j][0][3][place1]
-                    networkFULL[j][0][3][place2] = pR[j][0][3][place2]
+                for l in range(5):
+                    networkFULL[l][0][3][place1] = pR[l][0][3][place1]
+                    networkFULL[l][0][3][place2] = pR[l][0][3][place2]
                 
             for k in range(1, 80):
                 comm.send(networkFULL, dest = k)
@@ -448,4 +448,4 @@ for j in range(len(mult)):
     print("end")
     print(end_scan - scan_start)
     for n in range(5):
-    save(nn[n], "SCAN1_ATT1_RANK{}_SECTION{}".format(rank, n), losses)
+        save(nn[n], "SCAN1_ATT1_RANK{}_SECTION{}".format(rank, n), losses)
