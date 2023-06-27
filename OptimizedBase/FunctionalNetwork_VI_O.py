@@ -15,6 +15,19 @@ from optimizerDP import optimizerDP
 class FunctionalNetwork:
     def __init__(self):
         pass
+    
+    def forward_pass(networkNS, actual, sMaps4):
+	cnInput = network.connector_layer(sMaps4)
+	fcInput = network.forward_pass(networkNS[1][0], cnInput, networkNS[1][1], 0)
+	fcOutput = network.forward_pass(networkNS[1][1], fcInput, [0, 0, 0, 0], 1)
+	softmax = network.forward_pass(networkNS[2], fcOutput, [0, 0], 0)
+
+	res = fcOutput
+	if softmax[0] > softmax[1]:
+		res = [0, 0, 0, 0]
+	
+	err = network.mseINDIV(actual, res)
+	return err
 
     def FC(networkNS, actual, alpha, prev, sMaps4):
         print("fp")
