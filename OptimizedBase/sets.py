@@ -20,5 +20,23 @@ class SETS:
 			diff = mult[i][2] - mult[i][1]
 			tot += diff
 		print(tot)
+	
+	def test(prob):
+		testing = [[82, 0, 80], [83, 55, 75], [84, 50, 90], [85, 0, 60], [86, 0, 80], [87, 40, 100], [88, 0, 80], [89, 0, 80], [90, 35, 75], [91, 50, 90], [92, 30, 70], [93, 20, 100], [94, 40, 80], [95, 0, 20], [96, 0, 40], [97, 20, 100], [98, 30, 90], [99, 30, 90]]
+		
+		fin = []
+		for i in range(len(testing)):
+			if random.random() <= prob:
+				fin.append(testing[i])
+		
+		return fin
+	
+	def validation(testing):
+		tot = 0
+		for i in range(len(testing)):
+			diff = testing[i][2] - testing[i][1]
+			tot += diff
+		print(tot)
 
 SETS.imgs(SETS.data(1.0))
+SETS.validation(SETS.test(1.0))
