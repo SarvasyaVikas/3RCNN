@@ -11,7 +11,7 @@ from Modifications import Modifications
 from mpi4py import MPI
 from SNN import SNN
 from parallel import parallel
-from sets import SETS
+from sets_LM import SETS
 from algorithm import algorithm
 # Uses DP and MVI
 
