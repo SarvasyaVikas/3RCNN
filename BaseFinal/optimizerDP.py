@@ -21,15 +21,16 @@ class optimizerDP:
                 r = np.arccos(np.divide(fdelta[j], n))
                 added = (np.pi * i) / iterations
                 a = np.add(r, added)
-                f.append(a)
+                rot = np.cos(a)
+                f.append(rot)
             
             arrs.append(f)
             res = algorithm.convolution(f, cur, len(fdelta) // 2)
             diff = np.subtract(fut, res)
             det = np.linalg.det(diff)
-            dets.append(det)
+            dets.append(abs(det))
         
-        posMAX = dets.index(max(dets))
+        posMAX = dets.index(min(dets))
         filt = arrs[posMAX]
         return filt
             
@@ -60,22 +61,22 @@ class optimizerDP:
         
         return reverseMatrix
     
-    def reverseConvolutional(reverseMatrix, f1, f2, f3, f4):
+    def reverseConvolutional(sMaps1, sMaps2, sMaps3, sMaps4, reverseMatrix):
         r4 = []
         for i in range(4):
-            r = algorithm.convolution(f4[i], reverseMatrix, 1)
+            r = algorithm.anticonvolution(reverseMatrix, sMaps4[i], 1)
             r4.append(r)
         
         g3 = [network.anti_pool(np.add(r4[0], r4[1]), 16, 16), network.anti_pool(np.add(r4[2], r4[3]), 16, 16)]
         r3 = []
         for i in range(2):
-            r = algorithm.convolution(f3[i], g3[i], 1)
+            r = algorithm.anticonvolution(g3[i], sMaps3[i], 1)
             r3.append(r)
         
         g2 = network.anti_pool(np.add(r3[0], r3[1]), 32, 32)
-        r2 = algorithm.convolution(f2, g2, 2)
+        r2 = algorithm.anticonvolution(g2, sMaps2, 2)
         
         g1 = network.anti_pool(r2, 64, 64)
-        r1 = algorithm.convolution(f1, g1, 2)
+        r1 = algorithm.anticonvolution(g1, sMaps1, 2)
         
         return (r4, r3, r2, r1)

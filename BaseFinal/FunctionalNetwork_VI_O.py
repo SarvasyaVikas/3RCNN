@@ -87,7 +87,7 @@ class FunctionalNetwork:
             place = (4 * mod) + j
             conv = algorithm.anticonvolution(filter_matrix, np.array(sMaps4[place]), 1)
             delta = network.multiply(conv, alpha * rho)
-            zeta = optimizerDP.directional_partials(delta, sMaps4[place], r4[j])
+            zeta = optimizerDP.directional_partials(delta, sMaps4[place], algorithm.convolution(r4[j], sMaps4[place], 1))
             networkNS[0][3][place] = np.subtract(networkNS[0][3][place], zeta)
         cRow = []
         print("3")
@@ -102,8 +102,8 @@ class FunctionalNetwork:
             
             cMap = algorithm.convolution(avg, fMap, 1) # this is l
             
-            tau = optimizerMV.optimize(cMap, sMaps3[place], apS, networkNS[0][2][place], alpha * rho) # OPTIMIZER
-            zeta = optimizerDP.directional_partials(tau, sMaps3[place], r3[j])
+            tau = optimizerMVI.optimize(cMap, sMaps3[place], apS, networkNS[0][2][place], alpha * rho) # OPTIMIZER
+            zeta = optimizerDP.directional_partials(tau, sMaps3[place], algorithm.convolution(r3[j], sMaps3[place], 1))
             networkNS[0][2][place] = np.subtract(networkNS[0][2][place], zeta)
             cRow.append(cMap)
         print("12")
@@ -118,15 +118,15 @@ class FunctionalNetwork:
         apS = network.anti_pool(np.array(avgS), 32, 32)
         dMap = algorithm.convolution(avg, avgF, 1)
         
-        tau = optimizerMV.optimize(dMap, sMaps2[mod], apS, networkNS[0][1][mod], alpha * rho)
-        zeta = optimizerDP.directional_partials(tau, sMaps2[mod], r2)
+        tau = optimizerMVI.optimize(dMap, sMaps2[mod], apS, networkNS[0][1][mod], alpha * rho)
+        zeta = optimizerDP.directional_partials(tau, sMaps2[mod], algorithm.convolution(r2, sMaps2[mod], 2))
         networkNS[0][1][mod] = np.subtract(networkNS[0][1][mod], zeta)
         
         fMap = network.anti_pool(np.array(dMap), 64, 64)
         eMap = algorithm.convolution(networkNS[0][1][mod], fMap, 2)
             
-        tau = optimizerMV.optimize(eMap, sMaps1[mod], network.anti_pool(sMaps2[mod], 64, 64), networkNS[0][0][mod], alpha * rho)
-        zeta = optimizerDP.directional_partials(tau, sMaps1[mod], r1)
+        tau = optimizerMVI.optimize(eMap, sMaps1[mod], network.anti_pool(sMaps2[mod], 64, 64), networkNS[0][0][mod], alpha * rho)
+        zeta = optimizerDP.directional_partials(tau, sMaps1[mod], algorithm.convolution(r1, sMaps1[mod], 2))
         networkNS[0][0][mod] = np.subtract(networkNS[0][0][mod], zeta)
         
         return (networkNS, error)
