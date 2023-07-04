@@ -11,11 +11,11 @@ from Modifications import Modifications
 from mpi4py import MPI
 from SNN import SNN
 from parallel import parallel
-from sets_RCA import SETS
+from LEFT_CLUSTER import CLUSTER
 from algorithm import algorithm
 # Uses DP and MVI
 
-mult = SETS.test(1.0)
+mult = CLUSTER.LEFT_TRAIN()[1]
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -103,7 +103,7 @@ def divide(lst, val):
 
 def data(ptn):
     rows = []
-    with open("RCA_VALUES.csv") as csvfile:
+    with open("LEFT_CLUSTER_VALUES.csv") as csvfile:
         csvreader = csv.reader(csvfile, delimiter = ",")
         for row in csvreader:
             if int(row[1]) == ptn:
@@ -183,7 +183,7 @@ networkreader = csv.reader(networkfile)
 lstnetwork = list(networkreader)
 c = 0
 networkS = unpack(lstnetwork[ind - 1], networkS)
-errors = ["RCA"]
+errors = ["LEFT_CLUSTER"]
 
 nn = [networkS, networkS, networkS, networkS, networkS]
 neurals = [nn.copy()]

@@ -86,7 +86,7 @@ def save(networkN, code, losses):
             lst.append(SF[c][0][j])
         lst.append(SF[c][1])
     
-    csvfile = open("saved_I.csv", "a+")
+    csvfile = open("networks.csv", "a+")
     csvwriter = csv.writer(csvfile)
     csvwriter.writerow(lst)
     csvfile.close()
@@ -99,18 +99,16 @@ def divide(lst, val):
         fin.append(new)
     return fin
 
-def data(ptn, start = 0, val = 0):
+def data(ptn):
     rows = []
-    with open("3RCNN_Data_Annotations.csv") as csvfile:
+    with open("RCA_VALUES.csv") as csvfile:
         csvreader = csv.reader(csvfile, delimiter = ",")
         for row in csvreader:
             if int(row[1]) == ptn:
                 rows.append(row)
-    if val == 0:
-        val = len(rows) - 4
     images = []
     actuals = []
-    for i in range(start, val):
+    for i in range(len(rows) - 4):
         vals1 = [float(rows[i][3]), float(rows[i][4]), float(rows[i][5]), float(rows[i][6])]
         vals2 = [float(rows[i + 1][3]), float(rows[i + 1][4]), float(rows[i + 1][5]), float(rows[i + 1][6])]
         vals3 = [float(rows[i + 2][3]), float(rows[i + 2][4]), float(rows[i + 2][5]), float(rows[i + 2][6])]
@@ -198,7 +196,7 @@ for epoch in range(epochs):
         # scan 1
         scan_start = time.time()
         print("scan start")
-        (Is1, As1) = data(mult[j][0], mult[j][1], mult[j][2])
+        (Is1, As1) = data(mult[j][0])
         print("data gen")
         for i in range(mult[j][1], mult[j][2]):
             start = time.time()
@@ -490,11 +488,12 @@ for epoch in range(epochs):
         
             if rank == 0:
                 for n in range(5):
-                    save(networkFULL[n], "SCAN1_ATT1_RANK{}_PLACE{}_SECTION_{}".format(rank, u, n), losses)
+                    save(networkFULL[n], "RCA_PLACE{}_SECTION_{}".format(u, n), losses)
             print("save")
     
         end_scan = time.time()
         print("end")
         print(end_scan - scan_start)
-        for n in range(5):
-            save(nn[n], "SCAN1_ATT1_RANK{}_SECTION{}".format(rank, n), losses)
+        if rank == 0:
+            for n in range(5):
+                save(nn[n], "RCA_FIN_SECTION{}".format(n), losses)

@@ -11,11 +11,11 @@ from Modifications import Modifications
 from mpi4py import MPI
 from SNN import SNN
 from parallel import parallel
-from sets_RCA import SETS
+from LEFT_CLUSTER import CLUSTER
 from algorithm import algorithm
 # Uses DP and MVI
 
-mult = SETS.test(1.0)
+mult = CLUSTER.LEFT_TRAIN()[0]
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -50,49 +50,47 @@ print("networkS")
 # 1 scans
 val = 40
 alpha = 0.01
-epochs = 1 
+epochs = 2
 
-def unpack(row, networkI):
-    count = 0
-    count = int(row.index("S")) + 1
-    for i in range(len(row)):
-        if i >= count:
-            row[i] = float(row[i])
-    cop = row.copy()
-    for i in range(len(row)):
-        if i >= count:
-            cop[i] = 0
-        else:
-            cop[i] = 1
-        
-    for a in range(len(networkI[0])):
-        for j in range(len(networkI[0][a])):
-            for k in range(len(networkI[0][a][j])):
-                for l in range(len(networkI[0][a][j][k])):
-                    adj = cop.index(0, count)
-                    networkI[0][a][j][k][l] = row[adj]
-                    cop[adj] = 1
+def save(networkN, code, losses):
+    filters = networkN[0]
+    nodes = networkN[1]
+    SF = networkN[2]
+    
+    CV1 = filters[0]
+    CV2 = filters[1]
+    CV3 = filters[2]
+    CV4 = filters[3]
+    
+    FC5 = nodes[0]
+    FC6 = nodes[1]
+    
+    lst = [code]
+    lst.append(min(losses))
+    for i in range(len(losses)):
+        lst.append(losses[i])
+    lst.append("S")
+    for a in range(len(filters)):
+        for j in range(len(filters[a])):
+            for k in range(len(filters[a][j])):
+                for l in range(len(filters[a][j][k])):
+                    lst.append(filters[a][j][k][l])
+    for b in range(len(nodes)):
+        for j in range(len(nodes[b])):
+            for k in range(len(nodes[b][j][0])):
+                lst.append(nodes[b][j][0][k])
+            lst.append(nodes[b][j][1])
             
-    for b in range(len(networkI[1])):
-        for j in range(len(networkI[1][b])):
-            for k in range(len(networkI[1][b][j])):
-                adj = cop.index(0, count + 1664)
-                networkI[1][b][j][0][k] = row[adj]
-                cop[adj] = 1
-            adj = cop.index(0, count + 1664)
-            networkI[1][b][j][1] = row[adj]
-            cop[adj] = 1
-            
-    for c in range(len(networkI[2])):
-        for j in range(len(networkI[2][c][0])):
-            adj = cop.index(0, count + 1664)
-            networkI[2][c][0][j] = row[adj]
-            cop[adj] = 1
-        adj = cop.index(0, count + 1664)
-        networkI[2][c][1] = row[adj]
-        cop[adj] = 1
-            
-    return networkI
+    for c in range(len(SF)):
+        for j in range(len(SF[c][0])):
+            lst.append(SF[c][0][j])
+        lst.append(SF[c][1])
+    
+    csvfile = open("networks.csv", "a+")
+    csvwriter = csv.writer(csvfile)
+    csvwriter.writerow(lst)
+    csvfile.close()
+    
 
 def divide(lst, val):
     fin = []
@@ -103,7 +101,7 @@ def divide(lst, val):
 
 def data(ptn):
     rows = []
-    with open("RCA_VALUES.csv") as csvfile:
+    with open("LEFT_CLUSTER_VALUES.csv") as csvfile:
         csvreader = csv.reader(csvfile, delimiter = ",")
         for row in csvreader:
             if int(row[1]) == ptn:
@@ -120,13 +118,13 @@ def data(ptn):
 
         try:
             imageO = cv2.imread("NGCT{}_IMG/ngct{}_{}.png".format(ptn, ptn, i + 1), 0)
+            (h, w) = imageO.shape[:2]
+            left = 5 * w // 16
+            right = 13 * w // 16
+            top = 3 * h // 16
+            bottom = 11 * h // 16
         except:
             pass
-        
-        left = 160
-        right = 416
-        top = 96
-        bottom = 352
 
         try:
             image1 = cv2.imread("NGCT{}_IMG/pooled_ngct{}_{}.png".format(ptn, ptn, i + 1), 0)
@@ -177,14 +175,6 @@ def data(ptn):
         
     return (images, actuals)
 
-ind = 1936
-networkfile = open("networks.csv", "r")
-networkreader = csv.reader(networkfile)
-lstnetwork = list(networkreader)
-c = 0
-networkS = unpack(lstnetwork[ind - 1], networkS)
-errors = ["RCA"]
-
 nn = [networkS, networkS, networkS, networkS, networkS]
 neurals = [nn.copy()]
 
@@ -192,7 +182,7 @@ for epoch in range(epochs):
     for j in range(len(mult)):
         print(mult[j][0])
         print("losses")
-        losses = [64, 64]
+        losses = [(10 ** 5), (10 ** 5)]
         try:
             a = len(networkS)
             b = len(networkS[0])
@@ -208,7 +198,7 @@ for epoch in range(epochs):
         print("scan start")
         (Is1, As1) = data(mult[j][0])
         print("data gen")
-        for i in range(mult[j][1], mult[j][2] - 4):
+        for i in range(mult[j][1], mult[j][2]):
             start = time.time()
             print(i)
             u = i - mult[j][1]
@@ -395,18 +385,115 @@ for epoch in range(epochs):
                     sMaps2.append(sMap[6])
                     sMaps1.append(sMap[7])
                 print("fc")
-                err = FunctionalNetwork.forward_pass(networkS, As1[u][rank // 16], sMaps4)
-                if rank != 0:
-                    comm.send(err, dest = 0)
+                (networkS, error, filter_matrix, rho, reverseMatrix) = FunctionalNetwork.FC(networkS, As1[u][rank // 16], alpha, losses[-1], sMaps4)
+            
+                for k in range(1, 16):
+                    comm.send((networkS, error, filter_matrix, sMaps4, sMaps3, sMaps2, sMaps1, rho, reverseMatrix), dest = rank + k)
+            
+            if (rank % 16) != 0:
+                place = (rank // 16) * 16
+                (networkS, error, filter_matrix, sMaps4, sMaps3, sMaps2, sMaps1, rho, reverseMatrix) = comm.recv(source = place)
+            print("bp")
+            (networkS, error) = FunctionalNetwork.BP(networkS, error, alpha, filter_matrix, sMaps4, sMaps3, sMaps2, sMaps1, rank, rho, reverseMatrix)
+        #
+            if rank != 0:
+                comm.send(networkS, dest = 0)
+        
             if rank == 0:
-                error = err
-                for i in range(1, 5):
-                    new = comm.recv(source = i * 16)
-                    error += new
-                errors.append(error)
+                networkFULL = [networkS, networkS, networkS, networkS, networkS]
+                for k in range(1, 80):
+                    section = k // 16
+                    part = k % 16
+                    place1 = (2 * part)
+                    place2 = place1 + 1
+                    placeA = (4 * part)
+                    placeB = placeA + 1
+                    placeC = placeB + 1
+                    placeD = placeC + 1
+                    networkS = comm.recv(source = k)
+                    networkFULL[section][0][0][part] = networkS[0][0][part]
+                    networkFULL[section][0][1][part] = networkS[0][1][part]
+                
+                    networkFULL[section][0][2][place1] = networkS[0][2][place1]
+                    networkFULL[section][0][2][place2] = networkS[0][2][place2]
+                
+                    networkFULL[section][0][3][placeA] = networkS[0][3][placeA]
+                    networkFULL[section][0][3][placeB] = networkS[0][3][placeB]
+                    networkFULL[section][0][3][placeC] = networkS[0][3][placeC]
+                    networkFULL[section][0][3][placeD] = networkS[0][3][placeD]
+                
+                    if part == 0:
+                        networkFULL[section][1] = networkS[1]
+                        networkFULL[section][2] = networkS[2]
     
-        if rank == 0:           
-            csvfile = open("results.csv", "a+")
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(errors)
-            csvfile.close()
+                    comm.send(networkFULL, dest = k)
+    
+            if rank != 0:
+                networkFULL = comm.recv(source = 0)
+    
+            if rank < 32:
+                sect = rank // 16
+                rem = rank % 16
+                pR1 = FunctionalNetwork.PR([networkFULL[0][0][sect][rem], networkFULL[1][0][sect][rem], networkFULL[2][0][sect][rem], networkFULL[3][0][sect][rem], networkFULL[4][0][sect][rem]])
+                pR2 = FunctionalNetwork.PR([networkFULL[0][0][2][rank], networkFULL[1][0][2][rank], networkFULL[2][0][2][rank], networkFULL[3][0][2][rank], networkFULL[4][0][2][rank]])
+                for k in range(5):
+                    networkFULL[k][0][sect][rem] = pR1[k]
+                    networkFULL[k][0][2][rank] = pR2[k]
+    
+                if rank != 0:
+                    comm.send(networkFULL, dest = 0)
+            elif rank < 64:
+                place1 = (rank - 32) * 2
+                place2 = place1 + 1
+                pR1 = FunctionalNetwork.PR([networkFULL[0][0][3][place1], networkFULL[1][0][3][place1], networkFULL[2][0][3][place1], networkFULL[3][0][3][place1], networkFULL[4][0][3][place1]])
+                pR2 = FunctionalNetwork.PR([networkFULL[0][0][3][place2], networkFULL[1][0][3][place2], networkFULL[2][0][3][place2], networkFULL[3][0][3][place2], networkFULL[4][0][3][place2]])
+                for k in range(5):
+                        networkFULL[k][0][3][place1] = pR1[k]
+                        networkFULL[k][0][3][place2] = pR2[k]
+    
+                comm.send(networkFULL, dest = 0)
+        
+            if rank == 0:
+                for k in range(1, 32):
+                    mod = k % 16
+                    sect = k // 16
+                    pR = comm.recv(source = k)
+                    for l in range(5):
+                        networkFULL[l][0][sect][mod] = pR[l][0][sect][mod]
+                        networkFULL[l][0][2][k] = pR[l][0][2][k]
+                for k in range(32, 64):
+                    pR = comm.recv(source = k)
+                    place1 = 2 * (k - 32)
+                    place2 = place1 + 1
+                    for l in range(5):
+                        networkFULL[l][0][3][place1] = pR[l][0][3][place1]
+                        networkFULL[l][0][3][place2] = pR[l][0][3][place2]
+                    
+                for k in range(1, 80):
+                    comm.send(networkFULL, dest = k)
+        
+            print("reconstruction")
+            if rank != 0:
+                networkFULL = comm.recv(source = 0)
+            
+        #
+            if error < losses[-1]:
+                nn = networkFULL.copy()
+            losses.append(error)
+            
+            networkS = networkFULL[rank // 16].copy()
+    
+            end = time.time()
+            print(end - start)
+        
+            if rank == 0:
+                for n in range(5):
+                    save(networkFULL[n], "LEFT_CLUSTER_PLACE{}_SECTION_{}".format(u, n), losses)
+            print("save")
+    
+        end_scan = time.time()
+        print("end")
+        print(end_scan - scan_start)
+        if rank == 0:
+            for n in range(5):
+                save(nn[n], "LEFT_CLUSTER_FIN_SECTION{}".format(n), losses)
