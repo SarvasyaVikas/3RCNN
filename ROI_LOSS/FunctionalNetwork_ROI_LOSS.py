@@ -11,7 +11,7 @@ from Modifications import Modifications
 import time
 from mpi4py import MPI
 from optimizerDP import optimizerDP
-from processes_I import ROI_loss
+from processes_II import ROI_loss
 
 class FunctionalNetwork:
     def __init__(self):
