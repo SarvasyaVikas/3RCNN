@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import csv
-import algorithm
+from algorithm import algorithm
 
 class process:
 	def __init__(self):
@@ -11,6 +11,11 @@ class process:
 		kernel = [[0, -1, 0], [-1, 5, -1], [0, -1, 0]]
 		sharpened = cv2.filter2D(image, -1, kernel)
 		return sharpened
+	
+	def smooth(image):
+		kernel = [[0, 1, 0], [1, 4, 1], [0, 1, 0]]
+		smoothed = cv2.filter2D(image, -1, kernel)
+		return smoothed
 	
 	def erosion_dilation(image, itera):
 		kernel = np.ones((6, 6), np.uint8)
