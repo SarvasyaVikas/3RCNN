@@ -10,9 +10,9 @@ from optimizerMVI import optimizerMVI
 from Modifications import Modifications
 import time
 from mpi4py import MPI
-from optimizerDP_II import optimizerDP
-from processes_V import ROI_loss
-from processes_V import convolutionalModifications as cM
+from optimizerDP_III import optimizerDP
+from processes_VIII import ROI_loss
+from processes_VIII import convolutionalModifications as cM
 
 class FunctionalNetwork:
     def __init__(self):
