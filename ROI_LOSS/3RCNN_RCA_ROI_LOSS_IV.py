@@ -4,7 +4,7 @@ import csv
 import fnmatch
 import os
 import csv
-from FunctionalNetwork_ROI_LOSS_I import FunctionalNetwork
+from FunctionalNetwork_ROI_LOSS_III import FunctionalNetwork
 from network import network
 import time
 from Modifications import Modifications
@@ -13,8 +13,8 @@ from SNN import SNN
 from parallel import parallel
 from sets_RCA import SETS
 from algorithm import algorithm
-from processes_VI import antibone as ab
-from processes_VI import process
+from processes_VIII import antibone as ab
+from processes_VIII import process
 # Uses DP and MVI
 
 mult = SETS.data(1.0)
