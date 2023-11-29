@@ -7,13 +7,13 @@ import csv
 import time
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-p", "--ptn", type = str, default = "6")
+ap.add_argument("-p", "--ptn", type = str, default = "1")
 ap.add_argument("-t", "--type", type = str, default = "NG")
 args = vars(ap.parse_args())
 
 ptn = int(args["ptn"])
 CT = args["type"].upper()
-num_files = len(fnmatch.filter(os.listdir("{}CT{}_IMG".format(CT, str(ptn))), '*.png')) // 3
+num_files = len(fnmatch.filter(os.listdir("SCL/{}CT{}_SCL".format(CT, str(ptn))), '*.png')) // 3
 
 LTX_vals = [["RCA"], ["LAD"], ["CX"], ["LM"]]
 LTY_vals = [["RCA"], ["LAD"], ["CX"], ["LM"]]
@@ -69,15 +69,14 @@ def Interact(action, x, y, flags, *userdata):
 cv2.namedWindow("Image")
 cv2.setMouseCallback("Image", Interact)
 		
-for files in range(num_files):
-	file_num = files + 1
-	orig = cv2.imread("{}CT{}_IMG/{}ct{}_{}.png".format(CT, ptn, CT.lower(), ptn, file_num), 1)
+for file_num in range(1, num_files + 1):
+	orig = cv2.imread("SCL/{}CT{}_SCL/{}ct{}_{}.png".format(CT, ptn, CT.lower(), ptn, file_num), 1)
 	crop = cv2.resize(orig,(0, 0),fx=3, fy=3, interpolation = cv2.INTER_LINEAR)
 	(h, w) = crop.shape[:2]
 	resized = crop[(h // 4) : (3 * h // 4), (w // 4) : (3 * w // 4)]
-	arteries = ["RCA", "LAD", "CX", "LM"]
-	
-	for i in range(4):
+	#arteries = ["RCA", "LAD", "CX", "LM"]
+	arteries = ["LAD"]
+	for i in range(1):
 		image = resized.copy()
 		(h1, w1) = image.shape[:2]
 		cv2.putText(image, arteries[i], (w1 - 75, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 4, cv2.LINE_AA)
@@ -96,10 +95,10 @@ for files in range(num_files):
 				counter = 0
 				break
 		
-		lx = (min(LX, RX) * 2/3) + (w // 4)
-		rx = (max(LX, RX) * 2/3) + (w // 4)
-		ty = (min(TY, BY) * 2/3) + (h // 4)
-		by = (max(TY, BY) * 2/3) + (h // 4)
+		lx = (min(LX, RX) * 2/3) + 256
+		rx = (max(LX, RX) * 2/3) + 256
+		ty = (min(TY, BY) * 2/3) + 256
+		by = (max(TY, BY) * 2/3) + 256
 		
 		if lx == rx and rx == ty and ty == by:
 			lx = 0
@@ -108,20 +107,20 @@ for files in range(num_files):
 			by = 0
 		
 		print("{}, {}, {}, {}".format(lx, ty, rx, by))
-		print("Slice {} Section {}".format(file_num, i + 1))
+		print("Patient {} Slice {} Section {}".format(ptn, file_num, i + 1))
 		
 		LTX_vals[i].append(lx)
 		LTY_vals[i].append(ty)
 		RBX_vals[i].append(rx)
 		RBY_vals[i].append(by)
 
-csvfile = open("3RCNN_Data_Annotations.csv", "a+")
+csvfile = open("BB_DATA/LAD_Anno.csv", "a+")
 csvwriter = csv.writer(csvfile)
 
 for row in range(num_files):
 	dtype = CT + "CT"
 	lst = [dtype, ptn, row + 1]
-	for i in range(4):
+	for i in range(1):
 		lst.append(LTX_vals[i][row + 1])
 		lst.append(LTY_vals[i][row + 1])
 		lst.append(RBX_vals[i][row + 1])
